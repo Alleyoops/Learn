@@ -4,6 +4,7 @@
 复习了初级控件: 像素 线性布局Linearlayout 滚动视图Scrollview 文本视图textview 按钮button imageview imagebutton 图形Drawable<br>
 button是基于textview imagebutton基于imageview<br>
 button可显示文本和图形 imagebutton只能显示图形<br>
+九宫格点九图片，扩展名为.png,文件名后常带有“.9”字样
 ![image](https://user-images.githubusercontent.com/56183443/125168254-2d59a500-e1d7-11eb-9e43-e20c3dab85d0.png)<br>
 ```
 <Button
