@@ -63,6 +63,6 @@ button可显示文本和图形 imagebutton只能显示图形<br>
     }
 ```
 框架布局framelayout<br>
-*其下级视图无法指定所处的位置，只能统统从上级framelayout的左上角开始添加，并且后面的子视图会把之前的子视图覆盖掉。一般用于需要重叠显示的场合
-*foreground：指定布局的前景图像，最顶层，不会被覆盖
-*foregroundGravity：前景图像的对齐方式，同gravity
+* 其下级视图无法指定所处的位置，只能统统从上级framelayout的左上角开始添加，并且后面的子视图会把之前的子视图覆盖掉。一般用于需要重叠显示的场合
+* foreground：指定布局的前景图像，最顶层，不会被覆盖
+* foregroundGravity：前景图像的对齐方式，同gravity
