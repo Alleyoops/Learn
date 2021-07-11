@@ -67,3 +67,10 @@
 * 其下级视图无法指定所处的位置，只能统统从上级framelayout的左上角开始添加，并且后面的子视图会把之前的子视图覆盖掉。一般用于需要重叠显示的场合
 * foreground：指定布局的前景图像，最顶层，不会被覆盖
 * foregroundGravity：前景图像的对齐方式，同gravity
+##### 特殊按钮
+* 复选框Checkbox
+* 开关按钮switch
+* 单选按钮Radiobutton
+        * 基于RadioGroup容器
+        * radiogroup实质上是个布局，内可含textview，imageview等
+        * 只能单选，再次点击同一按钮不会取消选中
