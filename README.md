@@ -21,7 +21,7 @@ button可显示文本和图形 imagebutton只能显示图形<br>
 ```
 水平分割线
 ```
-    <View
+<View
         android:id="@+id/v_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
