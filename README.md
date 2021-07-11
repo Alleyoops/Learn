@@ -26,7 +26,8 @@
         android:layout_height="1dp"
         android:background="#000000"/>
 ```
-学习指数：⭐
+###### 学习指数：⭐
+
 # 711
 ### 安卓
 ##### 相对布局relativelayout
@@ -74,4 +75,4 @@
  	* 基于RadioGroup容器
  	* radiogroup实质上是个布局，内可含textview，imageview等
 	* 只能单选，再次点击同一按钮不会取消选中	
-学习指数：⭐
+###### 学习指数：⭐
