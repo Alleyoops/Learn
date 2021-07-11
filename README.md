@@ -1,6 +1,6 @@
 # Learn
 ## 710
-#### 安卓
+### 安卓
 * 复习了初级控件: 像素 线性布局Linearlayout 滚动视图Scrollview 文本视图textview 按钮button imageview imagebutton 图形Drawable<br>
 * button是基于textview imagebutton基于imageview<br>
 * button可显示文本和图形 imagebutton只能显示图形<br>
@@ -29,7 +29,7 @@
 ```
 学习指数：⭐
 ## 711
-#### 安卓
+### 安卓
 相对布局relativelayout
 * 相对指定视图或相对上级视图
 ```
