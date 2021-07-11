@@ -28,3 +28,37 @@ button可显示文本和图形 imagebutton只能显示图形<br>
         android:background="#000000"/>
 ```
 学习指数：⭐
+## 711
+#### 安卓
+相对布局relativelayout（相对指定视图或相对上级视图） <br>
+```
+    // 通过代码在相对布局下面添加新视图，referId代表参考对象的编号
+    private void addNewView(int firstAlign, int secondAlign, int referId) {
+        // 创建一个新的视图对象
+        View v = new View(this);
+        // 把该视图的背景设置为半透明的绿色
+        v.setBackgroundColor(0xaa66ff66);
+        // 声明一个布局参数，其中宽度为100p，高度也为100dp
+        RelativeLayout.LayoutParams rl_params = new RelativeLayout.LayoutParams(
+                Utils.dip2px(this, 100), Utils.dip2px(this, 100));
+        // 给布局参数添加第一个相对位置的规则，firstAlign代表位置类型，referId代表参考对象
+        rl_params.addRule(firstAlign, referId);
+        if (secondAlign >= 0) {
+            // 如果存在第二个相对位置，则同时给布局参数添加第二个相对位置的规则
+            rl_params.addRule(secondAlign, referId);
+        }
+        // 给该视图设置布局参数
+        v.setLayoutParams(rl_params);
+        // 往相对布局中添加该视图
+        rl_content.addView(v);
+        // 设置该视图的长按监听器
+        v.setOnLongClickListener(new OnLongClickListener() {
+            // 在用户长按该视图时触发
+            public boolean onLongClick(View vv) {
+                // 一旦监听到长按事件，就从相对布局中删除该视图
+                rl_content.removeView(vv);
+                return true;
+            }
+        });
+    }
+```
