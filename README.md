@@ -73,5 +73,5 @@
 * 单选按钮Radiobutton<br>
  	* 基于RadioGroup容器
  	* radiogroup实质上是个布局，内可含textview，imageview等
-	* 只能单选，再次点击同一按钮不会取消选中<br><br>
-学习指数：⭐
+	* 只能单选，再次点击同一按钮不会取消选中<br>
+ 学习指数：⭐
