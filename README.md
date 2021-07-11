@@ -1,11 +1,11 @@
 # Learn
 ## 710
 #### 安卓
-复习了初级控件: 像素 线性布局Linearlayout 滚动视图Scrollview 文本视图textview 按钮button imageview imagebutton 图形Drawable<br>
-button是基于textview imagebutton基于imageview<br>
-button可显示文本和图形 imagebutton只能显示图形<br>
-九宫格点九图片，扩展名为.png,文件名后常带有“.9”字样<br>
-![image](https://user-images.githubusercontent.com/56183443/125168254-2d59a500-e1d7-11eb-9e43-e20c3dab85d0.png)
+* 复习了初级控件: 像素 线性布局Linearlayout 滚动视图Scrollview 文本视图textview 按钮button imageview imagebutton 图形Drawable<br>
+* button是基于textview imagebutton基于imageview<br>
+* button可显示文本和图形 imagebutton只能显示图形<br>
+* 九宫格点九图片，扩展名为.png,文件名后常带有“.9”字样<br>
+* ![image](https://user-images.githubusercontent.com/56183443/125168254-2d59a500-e1d7-11eb-9e43-e20c3dab85d0.png)
 ```
 <Button
         android:id="@+id/btn_icon"
@@ -19,7 +19,7 @@ button可显示文本和图形 imagebutton只能显示图形<br>
         android:textColor="#000000"
         android:textSize="17sp" />
 ```
-水平分割线
+* 水平分割线
 ```
 <View
         android:id="@+id/v_line"
@@ -30,7 +30,8 @@ button可显示文本和图形 imagebutton只能显示图形<br>
 学习指数：⭐
 ## 711
 #### 安卓
-相对布局relativelayout（相对指定视图或相对上级视图） <br>
+相对布局relativelayout
+* 相对指定视图或相对上级视图
 ```
     // 通过代码在相对布局下面添加新视图，referId代表参考对象的编号
     private void addNewView(int firstAlign, int secondAlign, int referId) {
