@@ -125,7 +125,8 @@
 ```
 * EditText
 	* 自动隐藏输入法
-		* 获取编辑框最大长度```
+		* 获取编辑框最大长度
+		* ```
 	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
     public static int getMaxLength(EditText et) {
         int length = 0;
@@ -152,7 +153,8 @@
 			* beforeTextChanged 在文本改变之前触发
 			* onTextChanged 在文本改变时触发
 			* afterTextChanged 在文本改变之后触发
-		* 两种关闭软键盘的方式```
+		* 两种关闭软键盘的方式
+		* ```
 		    public static void hideAllInputMethod(Activity act) {
         // 从系统服务中获取输入法管理器
         InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -167,7 +169,8 @@
         // 关闭屏幕上的输入法软键盘
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }```
-		* 输入回车自动跳转```
+		* 输入回车自动跳转
+		```
 		        // 在编辑框的输入文本变化后触发
         public void afterTextChanged(Editable s) {
             String str = s.toString();
