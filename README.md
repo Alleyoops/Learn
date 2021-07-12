@@ -197,3 +197,8 @@
         }
     }
 ```
+##### 自动完成编辑框AutoCompleteTextview
+* 实现原理：EditText结合监听器Textwatcher与下拉列表Spinner
+##### 活动Activity
+* 生命周期：跳转前的页面先调用onPause方法，然后跳转后的页面依次调用onCreate/omRestart->onStart->onResume，最后`跳转前的页面调用onStop方法`（若返回上级页面，则下级页面还需调用onDestroy方法） 
+* 横竖屏切换：无论横屏切换竖屏还是竖屏切换到横屏，都是原屏幕的页面从onPause到onStop再到onDestroy一路销毁，然后新屏幕的页面从onCreate到onStart再到onResume一路创建而来
