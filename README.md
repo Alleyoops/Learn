@@ -98,6 +98,7 @@
         /*定义下拉列表的文本样式，里面的Textview定义了列表中(注意是“列表中”)的文本属性*/
 ```
 ![image](https://user-images.githubusercontent.com/56183443/125235854-b24ad880-e315-11eb-99d5-06ac96e0b731.png)
+![image](https://user-images.githubusercontent.com/56183443/125267769-b0930c00-e339-11eb-8ffb-14d95db8da38.png)
 ```
         starAdapter.setDropDownViewResource(R.layout.item_dropdown);
         // 从布局文件中获取名叫sp_dialog的下拉框
