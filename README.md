@@ -132,6 +132,7 @@
 			* onTextChanged 在文本改变时触发
 			* afterTextChanged 在文本改变之后触发
 		* 两种关闭软键盘的方式
+		* 输入回车自动跳转
 ```
 	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
     public static int getMaxLength(EditText et) {
@@ -154,9 +155,10 @@
             e.printStackTrace();
         }
         return length;
-    } ```
-		```
-		    public static void hideAllInputMethod(Activity act) {
+    }
+```
+```
+	public static void hideAllInputMethod(Activity act) {
         // 从系统服务中获取输入法管理器
         InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm.isActive()) { // 软键盘如果已经打开则关闭之
@@ -169,10 +171,11 @@
         InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
         // 关闭屏幕上的输入法软键盘
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-    }```
-		* 输入回车自动跳转
-		```
-		        // 在编辑框的输入文本变化后触发
+    }
+```
+		
+```
+	 // 在编辑框的输入文本变化后触发
         public void afterTextChanged(Editable s) {
             String str = s.toString();
             // 发现输入回车符或换行符
@@ -195,4 +198,5 @@
                 }
             }
         }
-    }```
+    }
+```
