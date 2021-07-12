@@ -221,6 +221,6 @@ if (v.getId() == R.id.btn_call) { // 点击了直接拨号按钮
         } else if ···
 ```
 * Activity间传递参数：putExtras Bundle setResult onActivityResult onActivityForResult ···
-* 文本工具TextUtils
-* 提醒对话框AlertDialog
+##### 文本工具TextUtils
+##### 提醒对话框AlertDialog
 ###### 学习指数：⭐⭐
