@@ -76,3 +76,44 @@
  	* radiogroup实质上是个布局，内可含textview，imageview等
 	* 只能单选，再次点击同一按钮不会取消选中	
 ###### 学习指数：⭐
+
+# 712
+### 安卓
+##### 下拉框spinner
+* 配合适配器使用：ArrayAdapter SimpleAdapter
+* ArrayAdapter只能显示文本列表，SimpleAdapter更高级，所以并不simple，下面是Arrayadpter的例子
+```
+    // 初始化下拉框
+    private void initSpinner() {
+        // 声明一个下拉列表的数组适配器
+        /*R.layout.item_select指定下拉框当前文本的样式，
+        这个布局文件内只有一个Textview，
+        定义了当前选中文本(注意是“选中”)的大小颜色对齐方式等属性*/
+        ArrayAdapter<String> starAdapter = new ArrayAdapter<String>(this,
+                R.layout.item_select, starArray);
+        // 设置数组适配器的布局样式
+        /*定义下拉列表的文本样式，里面的Textview定义了列表中(注意是“列表中”)的文本属性*/
+        starAdapter.setDropDownViewResource(R.layout.item_dropdown);
+        // 从布局文件中获取名叫sp_dialog的下拉框
+        Spinner sp = findViewById(R.id.sp_dialog);
+        // 设置下拉框的标题
+        sp.setPrompt("请选择行星");
+        // 设置下拉框的数组适配器
+        sp.setAdapter(starAdapter);
+        // 设置下拉框默认显示第一项
+        sp.setSelection(0);
+        // 给下拉框设置选择监听器，一旦用户选中某一项，就触发监听器的onItemSelected方法
+        sp.setOnItemSelectedListener(new MySelectedListener());
+    }
+    // 定义下拉列表需要显示的文本数组
+    private String[] starArray = {"水星", "金星", "地球", "火星", "木星", "土星"};
+    // 定义一个选择监听器，它实现了接口OnItemSelectedListener
+    class MySelectedListener implements OnItemSelectedListener {
+        // 选择事件的处理方法，其中arg2代表选择项的序号
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+            Toast.makeText(SpinnerDialogActivity.this, "您选择的是" + starArray[arg2], Toast.LENGTH_LONG).show();
+        }
+        // 未选择时的处理方法，通常无需关注
+        public void onNothingSelected(AdapterView<?> arg0) {}
+    }
+```
