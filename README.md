@@ -89,12 +89,16 @@
         /*R.layout.item_select指定下拉框当前文本的样式，
         这个布局文件内只有一个Textview，
         定义了当前选中文本(注意是“选中”)的大小颜色对齐方式等属性*/
-	![image](https://user-images.githubusercontent.com/56183443/125235883-bf67c780-e315-11eb-8ad1-459295f8b793.png)
+```
+![image](https://user-images.githubusercontent.com/56183443/125235883-bf67c780-e315-11eb-8ad1-459295f8b793.png)
+```
         ArrayAdapter<String> starAdapter = new ArrayAdapter<String>(this,
                 R.layout.item_select, starArray);
         // 设置数组适配器的布局样式
         /*定义下拉列表的文本样式，里面的Textview定义了列表中(注意是“列表中”)的文本属性*/
-	![image](https://user-images.githubusercontent.com/56183443/125235854-b24ad880-e315-11eb-99d5-06ac96e0b731.png)
+```
+![image](https://user-images.githubusercontent.com/56183443/125235854-b24ad880-e315-11eb-99d5-06ac96e0b731.png)
+```
         starAdapter.setDropDownViewResource(R.layout.item_dropdown);
         // 从布局文件中获取名叫sp_dialog的下拉框
         Spinner sp = findViewById(R.id.sp_dialog);
