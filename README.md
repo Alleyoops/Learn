@@ -127,7 +127,7 @@
 * 文本EditText
 	* 自动隐藏输入法
 		* 获取编辑框最大长度
-```
+		>>```
 	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
     public static int getMaxLength(EditText et) {
         int length = 0;
@@ -149,8 +149,7 @@
             e.printStackTrace();
         }
         return length;
-    }
- ```
+    } ```
 		* 监控当前已输入文本长度：文本监听器接口TextWatcher，提供三个接口方法（不触发则可不写具体触发内容）
 			* beforeTextChanged 在文本改变之前触发
 			* onTextChanged 在文本改变时触发
