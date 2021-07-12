@@ -201,5 +201,26 @@
 * 实现原理：EditText结合监听器Textwatcher与下拉列表Spinner
 ##### 活动Activity
 * 生命周期：跳转前的页面先调用onPause方法，然后跳转后的页面依次调用onCreate/omRestart->onStart->onResume，最后`跳转前的页面调用onStop方法`（若返回上级页面，则下级页面还需调用onDestroy方法） 
-* 横竖屏切换：无论横屏切换竖屏还是竖屏切换到横屏，都是原屏幕的页面从onPause到onStop再到onDestroy一路销毁，然后新屏幕的页面从onCreate到onStart再到onResume一路创建而来
+* 横竖屏切换：无论横屏切换竖屏还是竖屏切换到横屏，都是原屏幕的页面从onPause到onStop再到onDestroy一路销毁，然后新屏幕的页面从onCreate到onStart再到onResume一路创建而来 
+* 隐式intent：如拨号路径
+```
+if (v.getId() == R.id.btn_call) { // 点击了直接拨号按钮
+            // 拨号功能还需在AndroidManifest.xml中添加拨号权限配置
+            Intent intent = new Intent(); // 创建一个新意图
+            intent.setAction(Intent.ACTION_CALL); // 设置意图动作为直接拨号
+            // 声明一个拨号的Uri
+            /*"tel:"是规定好的，例如：
+            Uri myBlogUri = Uri.parse("http://xxxxx.com");
+            Uri mapUri = Uri.parse("geo:38.899533,-77.036476");
+            Uri playUri = Uri.parse("file:///sdcard/download/everything.mp3");
+            ····
+             */
+            Uri uri = Uri.parse("tel:" + phone);
+            intent.setData(uri); // 设置意图前往的路径
+            startActivity(intent); // 启动意图通往的活动页面
+        } else if ···
+```
+* Activity间传递参数：putExtras Bundle setResult onActivityResult onActivityForResult ···
+* 文本工具TextUtils
+* 提醒对话框AlertDialog
 ###### 学习指数：⭐⭐
