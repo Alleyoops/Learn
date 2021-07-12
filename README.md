@@ -123,3 +123,72 @@
         public void onNothingSelected(AdapterView<?> arg0) {}
     }
 ```
+* EditText
+	* 自动隐藏输入法
+		* 获取编辑框最大长度```
+	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
+    public static int getMaxLength(EditText et) {
+        int length = 0;
+        try {
+            InputFilter[] inputFilters = et.getFilters();
+            for (InputFilter filter : inputFilters) {
+                Class<?> c = filter.getClass();
+                if (c.getName().equals("android.text.InputFilter$LengthFilter")) {
+                    Field[] f = c.getDeclaredFields();
+                    for (Field field : f) {
+                        if (field.getName().equals("mMax")) {
+                            field.setAccessible(true);
+                            length = (Integer) field.get(filter);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return length;
+    }```
+		* 监控当前已输入文本长度：文本监听器接口TextWatcher，提供三个接口方法（不触发则可不写具体触发内容）
+			* beforeTextChanged 在文本改变之前触发
+			* onTextChanged 在文本改变时触发
+			* afterTextChanged 在文本改变之后触发
+		* 两种关闭软键盘的方式```
+		    public static void hideAllInputMethod(Activity act) {
+        // 从系统服务中获取输入法管理器
+        InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive()) { // 软键盘如果已经打开则关闭之
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    public static void hideOneInputMethod(Activity act, View v) {
+        // 从系统服务中获取输入法管理器
+        InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
+        // 关闭屏幕上的输入法软键盘
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }```
+		* 输入回车自动跳转```
+		        // 在编辑框的输入文本变化后触发
+        public void afterTextChanged(Editable s) {
+            String str = s.toString();
+            // 发现输入回车符或换行符
+            if (str.contains("\r") || str.contains("\n")) {
+                // 去掉回车符和换行符
+                mThisView.setText(str.replace("\r", "").replace("\n", ""));
+                if (mNextView != null) {
+                    // 让下一个视图获得焦点，即将光标移到下个视图
+                    mNextView.requestFocus();
+                    // 如果下一个视图是编辑框，则将光标自动移到编辑框的文本末尾
+                    if (mNextView instanceof EditText) {
+                        EditText et = (EditText) mNextView;
+                        // 让光标自动移到编辑框内部的文本末尾
+                        // 方式一：直接调用EditText的setSelection方法
+                        et.setSelection(et.getText().length());
+                        // 方式二：调用Selection类的setSelection方法
+                        //Editable edit = et.getText();
+                        //Selection.setSelection(edit, edit.length());
+                    }
+                }
+            }
+        }
+    }```
