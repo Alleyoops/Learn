@@ -33,7 +33,14 @@ public class ActUriActivity extends AppCompatActivity implements OnClickListener
             // 拨号功能还需在AndroidManifest.xml中添加拨号权限配置
             Intent intent = new Intent(); // 创建一个新意图
             intent.setAction(Intent.ACTION_CALL); // 设置意图动作为直接拨号
-            Uri uri = Uri.parse("tel:" + phone); // 声明一个拨号的Uri
+            // 声明一个拨号的Uri
+            /*"tel:"是规定好的，例如：
+            Uri myBlogUri = Uri.parse("http://xxxxx.com");
+            Uri mapUri = Uri.parse("geo:38.899533,-77.036476");
+            Uri playUri = Uri.parse("file:///sdcard/download/everything.mp3");
+            ····
+             */
+            Uri uri = Uri.parse("tel:" + phone);
             intent.setData(uri); // 设置意图前往的路径
             startActivity(intent); // 启动意图通往的活动页面
         } else if (v.getId() == R.id.btn_dial) { // 点击了准备拨号按钮
@@ -52,5 +59,6 @@ public class ActUriActivity extends AppCompatActivity implements OnClickListener
             startActivity(intent); // 启动意图通往的活动页面
         }
     }
+
 
 }

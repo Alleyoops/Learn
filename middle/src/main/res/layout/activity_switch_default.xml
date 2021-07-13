@@ -27,7 +27,8 @@
             <Switch
                 android:id="@+id/sw_status"
                 android:layout_width="100dp"
-                android:layout_height="50dp" />
+                android:layout_height="50dp"
+                android:text="文本"/>
         </LinearLayout>
     </LinearLayout>
 

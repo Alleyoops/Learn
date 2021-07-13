@@ -16,7 +16,7 @@ import android.widget.TextView;
 public class ActJumpActivity extends AppCompatActivity implements OnClickListener {
     private final static String TAG = "ActJumpActivity";
     private TextView tv_life; // 声明一个文本视图对象
-    private String mStr = "";
+    private String mStr = "分";
 
     private void refreshLife(String desc) { // 刷新生命周期的日志信息
         Log.d(TAG, desc);

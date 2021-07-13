@@ -51,10 +51,11 @@ public class EditHideActivity extends AppCompatActivity implements OnClickListen
         private int mMaxLength; // 声明一个最大长度变量
         private CharSequence mStr; // 声明一个文本串
 
-        public HideTextWatcher(EditText v) {
+            public HideTextWatcher(EditText v) {
             super();
             mView = v;
             // 通过反射机制获取编辑框的最大长度
+                //通过编辑框最大长度来确定是哪一个编辑框，以保证不在输入6个字符时关闭最大长度为11的编辑框
             mMaxLength = ViewUtil.getMaxLength(v);
         }
 

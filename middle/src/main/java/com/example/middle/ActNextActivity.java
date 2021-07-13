@@ -17,11 +17,11 @@ import android.widget.TextView;
 public class ActNextActivity extends AppCompatActivity implements OnClickListener {
     private final static String TAG = "ActNextActivity";
     private TextView tv_life; // 声明一个文本视图对象
-    private String mStr = "";
+    private String mStr = "下";
 
     private void refreshLife(String desc) { // 刷新生命周期的日志信息
         Log.d(TAG, desc);
-        mStr = String.format("%s    %s %s %s\n", mStr, DateUtil.getNowTimeDetail(), TAG, desc);
+        mStr = String.format("%s  发v  %s %s %s\n", mStr, DateUtil.getNowTimeDetail(), TAG, desc);
         tv_life.setText(mStr);
     }
 

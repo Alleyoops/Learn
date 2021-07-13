@@ -44,7 +44,7 @@ public class RelativeCodeActivity extends AppCompatActivity implements OnClickLi
         } else if (v.getId() == R.id.btn_add_below) {
             addNewView(RelativeLayout.BELOW, RelativeLayout.ALIGN_RIGHT, v.getId());
         } else if (v.getId() == R.id.btn_add_center) {
-            addNewView(RelativeLayout.CENTER_IN_PARENT, -1, rl_content.getId());
+            addNewView(RelativeLayout.CENTER_IN_PARENT, -1, rl_content.getId());//参考对象只有上级试图，故只有一个参考对象
         } else if (v.getId() == R.id.btn_add_parent_left) {
             addNewView(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.CENTER_VERTICAL, rl_content.getId());
         } else if (v.getId() == R.id.btn_add_parent_top) {
@@ -73,6 +73,8 @@ public class RelativeCodeActivity extends AppCompatActivity implements OnClickLi
         }
         // 给该视图设置布局参数
         v.setLayoutParams(rl_params);
+        // 往相对布局中添加该视图
+        rl_content.addView(v);
         // 设置该视图的长按监听器
         v.setOnLongClickListener(new OnLongClickListener() {
             // 在用户长按该视图时触发
@@ -82,8 +84,6 @@ public class RelativeCodeActivity extends AppCompatActivity implements OnClickLi
                 return true;
             }
         });
-        // 往相对布局中添加该视图
-        rl_content.addView(v);
     }
 
 }

@@ -24,9 +24,13 @@ public class SpinnerDialogActivity extends AppCompatActivity {
     // 初始化下拉框
     private void initSpinner() {
         // 声明一个下拉列表的数组适配器
+        /*R.layout.item_select指定下拉框当前文本的样式，
+        这个布局文件内只有一个Textview，
+        定义了当前选中文本(注意是“选中”)的大小颜色对齐方式等属性*/
         ArrayAdapter<String> starAdapter = new ArrayAdapter<String>(this,
                 R.layout.item_select, starArray);
         // 设置数组适配器的布局样式
+        /*定义下拉列表的文本样式，里面的Textview定义了列表中(注意是“列表中”)的文本属性*/
         starAdapter.setDropDownViewResource(R.layout.item_dropdown);
         // 从布局文件中获取名叫sp_dialog的下拉框
         Spinner sp = findViewById(R.id.sp_dialog);
@@ -39,7 +43,6 @@ public class SpinnerDialogActivity extends AppCompatActivity {
         // 给下拉框设置选择监听器，一旦用户选中某一项，就触发监听器的onItemSelected方法
         sp.setOnItemSelectedListener(new MySelectedListener());
     }
-
     // 定义下拉列表需要显示的文本数组
     private String[] starArray = {"水星", "金星", "地球", "火星", "木星", "土星"};
     // 定义一个选择监听器，它实现了接口OnItemSelectedListener
@@ -48,9 +51,7 @@ public class SpinnerDialogActivity extends AppCompatActivity {
         public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
             Toast.makeText(SpinnerDialogActivity.this, "您选择的是" + starArray[arg2], Toast.LENGTH_LONG).show();
         }
-
         // 未选择时的处理方法，通常无需关注
         public void onNothingSelected(AdapterView<?> arg0) {}
     }
-
 }
