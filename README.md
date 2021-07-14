@@ -238,5 +238,5 @@ if (v.getId() == R.id.btn_call) { // 点击了直接拨号按钮
 ###### 学习指数：⭐
 
 # 714
-### JAVA
-![20210714025359](https://raw.githubusercontent.com/Alleyoops/Image/main/20210714025359.png)
+### 科目一
+###### 学习指数：⭐
