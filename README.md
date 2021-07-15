@@ -1,5 +1,7 @@
-# 710
-### 安卓
+# Learn
+
+## 710
+#### 安卓
 * 复习了初级控件: 像素 线性布局Linearlayout 滚动视图Scrollview 文本视图textview 按钮button imageview imagebutton 图形Drawable<br>
 * button是基于textview imagebutton基于imageview<br>
 * button可显示文本和图形 imagebutton只能显示图形<br>
@@ -28,9 +30,9 @@
 ```
 ###### 学习指数：⭐
 
-# 711
-### 安卓
-##### 相对布局relativelayout
+## 711
+#### 安卓
+###### 相对布局relativelayout
 * 相对指定视图或相对上级视图
 * 添加新视图的函数例子
 ```
@@ -64,11 +66,11 @@
         });
     }
 ```
-##### 框架布局framelayout<br>
+###### 框架布局framelayout<br>
 * 其下级视图无法指定所处的位置，只能统统从上级framelayout的左上角开始添加，并且后面的子视图会把之前的子视图覆盖掉。一般用于需要重叠显示的场合
 * foreground：指定布局的前景图像，最顶层，不会被覆盖
 * foregroundGravity：前景图像的对齐方式，同gravity
-##### 特殊按钮
+###### 特殊按钮
 * 复选框Checkbox
 * 开关按钮switch
 * 单选按钮Radiobutton<br>
@@ -77,9 +79,9 @@
 	* 只能单选，再次点击同一按钮不会取消选中	
 ###### 学习指数：⭐
 
-# 712
-### 安卓
-##### 下拉框spinner
+## 712
+#### 安卓
+###### 下拉框spinner
 * 配合适配器使用：ArrayAdapter SimpleAdapter
 * ArrayAdapter只能显示文本列表，SimpleAdapter更高级，所以并不simple，下面是Arrayadpter的例子
 ```
@@ -123,7 +125,7 @@
         public void onNothingSelected(AdapterView<?> arg0) {}
     }
 ```
-##### 文本编辑框EditText
+###### 文本编辑框EditText
 * 获取编辑框最大长度
 ```
 	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
@@ -197,9 +199,9 @@
         }
     }
 ```
-##### 自动完成编辑框AutoCompleteTextview
+###### 自动完成编辑框AutoCompleteTextview
 * 实现原理：EditText结合监听器Textwatcher与下拉列表Spinner
-##### 活动Activity
+###### 活动Activity
 * 生命周期：跳转前的页面先调用onPause方法，然后跳转后的页面依次调用onCreate/omRestart->onStart->onResume，最后`跳转前的页面调用onStop方法`（若返回上级页面，则下级页面还需调用onDestroy方法） 
 * 横竖屏切换：无论横屏切换竖屏还是竖屏切换到横屏，都是原屏幕的页面从onPause到onStop再到onDestroy一路销毁，然后新屏幕的页面从onCreate到onStart再到onResume一路创建而来 
 * 隐式intent：如拨号路径
@@ -221,22 +223,31 @@ if (v.getId() == R.id.btn_call) { // 点击了直接拨号按钮
         } else if ···
 ```
 * Activity间传递参数：putExtras Bundle setResult onActivityResult onActivityForResult ···
-##### 文本工具TextUtils
-##### 提醒对话框AlertDialog
+###### 文本工具TextUtils
+###### 提醒对话框AlertDialog
+* create()方法
+* show()方法
 ###### 学习指数：⭐⭐
 
-# 713
-### JAVA
-##### ![image](https://user-images.githubusercontent.com/56183443/125480917-c87119e8-c00c-47ed-a37c-dba1d7e51c12.png)
-##### ![image](https://user-images.githubusercontent.com/56183443/125481275-edc20141-c883-422a-b2ca-a3985fc40977.png)
-##### ![image](https://user-images.githubusercontent.com/56183443/125481451-74bd48ac-e7ac-4014-bd29-88553b6bcdfc.png)
+## 713
+#### JAVA
+###### ![image](https://user-images.githubusercontent.com/56183443/125480917-c87119e8-c00c-47ed-a37c-dba1d7e51c12.png)
+###### ![image](https://user-images.githubusercontent.com/56183443/125481275-edc20141-c883-422a-b2ca-a3985fc40977.png)
+###### ![image](https://user-images.githubusercontent.com/56183443/125481451-74bd48ac-e7ac-4014-bd29-88553b6bcdfc.png)
 * 短路与`&&`，短路或`||`
 * 与`&`，或`|`根据两边的类型是数还是布尔来决定是`与`和`或` 还是`按位与`和`按位或`
-##### ![image](https://user-images.githubusercontent.com/56183443/125483048-0cde1bb0-97b3-454e-91a9-21d3c07c4970.png)
-##### ![image](https://user-images.githubusercontent.com/56183443/125483210-3e2bf6ce-35bf-4ed5-b115-29ee1568a1d7.png)
-### 科目一
+###### ![image](https://user-images.githubusercontent.com/56183443/125483048-0cde1bb0-97b3-454e-91a9-21d3c07c4970.png)
+###### ![image](https://user-images.githubusercontent.com/56183443/125483210-3e2bf6ce-35bf-4ed5-b115-29ee1568a1d7.png)
+#### 科目一
 ###### 学习指数：⭐
 
-# 714
-### 科目一
+## 714
+#### 科目一
 ###### 学习指数：⭐
+
+## 715
+#### 科目一考试
+###### 学习指数：⭐
+
+## 716
+#### 安卓

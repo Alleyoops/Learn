@@ -1,3 +1,4 @@
 rootProject.name = "Learn"
 include ':junior'
 include ':middle'
+include ':logintest'
