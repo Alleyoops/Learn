@@ -251,3 +251,24 @@ if (v.getId() == R.id.btn_call) { // 点击了直接拨号按钮
 
 ## 716
 #### 安卓
+###### 实战登录app
+![20210716221929](https://raw.githubusercontent.com/Alleyoops/Image/main/20210716221929.png)
+###### AlertDialog()的使用方法
+* 先创建一个建造器builder，然后对建造器设置，要用到create()方法，然后show()
+```
+AlertDialog.Builder builder = new AlertDialog.Builder(this);
+builder.setTitle("请记住验证码");
+builder.setMessage("手机号" + phone + "，本次验证码是" + mVerifyCode + "，请输入验证码");
+builder.setPositiveButton("好的", null);
+AlertDialog alert = builder.create();
+alert.show();
+```     
+* 直接new一个建造器，不用create(),直接show()
+```
+new AlertDialog.Builder(this)
+        .setTitle("请记住验证码")
+        .setMessage("手机号" + phone + "，本次验证码是" + mVerifyCode + "，请输入验证码")
+        .setPositiveButton("OK",null)//点击ok没有事件相应
+        .show();
+```
+###### 学习指数：⭐⭐
