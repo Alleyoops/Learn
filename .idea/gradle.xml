@@ -12,7 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/junior" />
-            <option value="$PROJECT_DIR$/logintest" />
+            <option value="$PROJECT_DIR$/loginapp" />
             <option value="$PROJECT_DIR$/middle" />
           </set>
         </option>

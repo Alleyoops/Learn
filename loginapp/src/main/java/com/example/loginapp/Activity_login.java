@@ -1,19 +1,19 @@
-package com.example.logintest;
+package com.example.loginapp;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.middle.LoginMainActivity;
-import com.example.middle.util.ViewUtil;
-
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,8 +24,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
-
+import java.lang.reflect.Field;
 
 /**
  * Copied by Alleyoop on 716
@@ -45,7 +46,6 @@ public class Activity_login extends AppCompatActivity implements OnClickListener
     private boolean bRemember = false; // 是否记住密码
     private String mPassword = "111111"; // 默认密码
     private String mVerifyCode; // 验证码
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,11 +61,11 @@ public class Activity_login extends AppCompatActivity implements OnClickListener
         ck_remember.setOnCheckedChangeListener(new CheckListener());
         et_phone.addTextChangedListener(new HideTextWatcher(et_phone));
         et_password.addTextChangedListener(new HideTextWatcher(et_password));
-        findViewById(R.id.btn_login).setOnClickListener(this);
+        btn_forget = findViewById(R.id.btn_login);
+        btn_forget.setOnClickListener(this);
         findViewById(R.id.btn_forget).setOnClickListener(this);
         initTypeSpinner();
     }
-
     //初始化下拉框Spinner,先声明下拉字符串数组
     private String[] typeArray = {"个人用户", "公司用户"};
 
@@ -129,7 +129,7 @@ public class Activity_login extends AppCompatActivity implements OnClickListener
         HideTextWatcher(EditText v) {
             super();
             mView = v;
-            mMaxLength = ViewUtil.getMaxLength(v);
+            mMaxLength = getMaxLength(v);
         }
 
         // 在编辑框的输入文本变化前触发
@@ -146,7 +146,7 @@ public class Activity_login extends AppCompatActivity implements OnClickListener
             if (mStr == null || mStr.length() == 0) return;
             // 手机号码输入达到11位，或者密码/验证码输入达到6位，都关闭输入法软键盘
             if ((mStr.length() == 11 && mMaxLength == 11) || (mStr.length() == 6 && mMaxLength == 6)) {
-                ViewUtil.hideOneInputMethod(Activity_login.this, mView);
+                hideOneInputMethod(Activity_login.this, mView);
             }
         }
     }
@@ -179,8 +179,95 @@ public class Activity_login extends AppCompatActivity implements OnClickListener
                         .setMessage("手机号" + phone + "，本次验证码是" + mVerifyCode + "，请输入验证码")
                         .setPositiveButton("OK",null)//点击ok没有事件相应
                         .show();
-
             }
         }
+        //点击了"登录"按钮
+        else if (v.getId() == R.id.btn_login){
+            // 手机号码不足11位
+            if(phone.length()<11){
+                Toast.makeText(this, "请输入正确手机号", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 选择了密码方式校验，验证密码正确性，先是验证默认密码(预置mPassword为”111111“)
+            if(rb_password.isChecked()){
+                if(!et_password.getText().toString().equals(mPassword)){
+                    Toast.makeText(this, "请输入正确的密码", Toast.LENGTH_SHORT).show();
+                } else {
+                    //提示登录成功，调用登录成功的方法
+                    loginSuccess();
+                }
+            }
+            // 选择了验证码方式校验，此时要验证验证码的正确性
+            else if (rb_verifycode.isChecked()) {
+                //注意这里的et_password已经不再是指密码了，而是用户输入的验证码
+                if(!et_password.getText().toString().equals(mVerifyCode)){
+                    Toast.makeText(this, "请输入正确的验证码", Toast.LENGTH_SHORT).show();
+                } else {
+                    //提示登录成功，调用登录成功的方法
+                    loginSuccess();
+                }
+            }
+        }
+    }
+    //登录成功的方法
+    private void loginSuccess(){
+        String desc = String.format("您的手机号码是%s，类型是%s。恭喜你通过登录验证，点击“确定”按钮返回上个页面",
+                et_phone.getText().toString(), typeArray[mType]);
+        //成功的提示框
+        new AlertDialog.Builder(this)
+                .setTitle("登录成功啦")
+                .setMessage(desc)
+                .setPositiveButton("好的,退出",new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int which){
+                        finish();
+                    }
+                })
+                .setNegativeButton("不退出",null)
+                .show();
+    }
+    //处理从下一个页面传过来的参数，相应startActivityForResult(intent, mRequestCode);
+    //注意这个protected,有点学问哦~。还有这个resultCode为结果代码，自行设定，收到返回参数后做一些事件可能会用到，不用就不管
+
+    @SuppressLint("MissingSuperCall")
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == mRequestCode && data != null) {
+            // 用户密码已改为新密码，故更新密码变量
+            mPassword = data.getStringExtra("new_password");
+        }
+    }
+    // 从修改密码页面返回登录页面，要清空密码的输入框
+    // 其实就是每次进入此页面就onRestart一下，达到清空编辑框的目的
+    // 这里清空的编辑框为"",而不是null
+    protected void onRestart() {
+        et_password.setText("");
+        super.onRestart();
+    }
+    // 获取编辑框的最大长度，通过反射机制调用隐藏方法
+    public static int getMaxLength(EditText et) {
+        int length = 0;
+        try {
+            InputFilter[] inputFilters = et.getFilters();
+            for (InputFilter filter : inputFilters) {
+                Class<?> c = filter.getClass();
+                if (c.getName().equals("android.text.InputFilter$LengthFilter")) {
+                    Field[] f = c.getDeclaredFields();
+                    for (Field field : f) {
+                        if (field.getName().equals("mMax")) {
+                            field.setAccessible(true);
+                            length = (Integer) field.get(filter);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return length;
+    }
+    public static void hideOneInputMethod(Activity act, View v) {
+        // 从系统服务中获取输入法管理器
+        InputMethodManager imm = (InputMethodManager) act.getSystemService(Context.INPUT_METHOD_SERVICE);
+        // 关闭屏幕上的输入法软键盘
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 }
