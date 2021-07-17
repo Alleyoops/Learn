@@ -272,3 +272,9 @@ new AlertDialog.Builder(this)
         .show();
 ```
 ###### 学习指数：⭐⭐
+
+## 717
+#### 安卓
+###### finish()方法
+![20210717005533](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717005533.png)
+#### JAVA
