@@ -278,3 +278,6 @@ new AlertDialog.Builder(this)
 ###### finish()方法
 ![20210717005533](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717005533.png)
 #### JAVA
+![20210717231127](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717231127.png)
+![20210717231240](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717231240.png)
+![20210717231443](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717231443.png)
