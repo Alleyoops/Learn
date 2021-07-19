@@ -301,6 +301,6 @@ new AlertDialog.Builder(this)
 * 构造器也叫构造方法
 * 默认的构造方法前面有没有访问的修饰符跟定义的类有关，类是public的，默认的构造方法就是public，默认的类是缺省的，默认的构造方法就是缺省的
 ###### 注解annotation
-* 基本注解
 ![20210719230456](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719230456.png)
+* 基本注解
 * 自定义注解
