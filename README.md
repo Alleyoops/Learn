@@ -294,3 +294,13 @@ new AlertDialog.Builder(this)
 ###### 封装和隐藏
 ![20210719161138](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719161138.png)
 * 当字段为 public 时，其他对象可以直接访问该字段并对其进行修改，而不会被拥有该字段的对象检测到。通过使用 private 属性封装该字段，可以禁止对字段的直接访问
+###### 访问权限修饰符
+![20210719174623](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719174623.png)
+* 在同一个java文件中可以写多个class，但是只有一个public的，其他的class只能是缺省(default)的
+###### 构造方法
+* 构造器也叫构造方法
+* 默认的构造方法前面有没有访问的修饰符跟定义的类有关，类是public的，默认的构造方法就是public，默认的类是缺省的，默认的构造方法就是缺省的
+###### 注解annotation
+* 基本注解
+![20210719230456](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719230456.png)
+* 自定义注解
