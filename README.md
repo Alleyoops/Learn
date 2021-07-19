@@ -286,6 +286,7 @@ new AlertDialog.Builder(this)
 ## 718
 #### JAVA
 ###### [super和this的区别](https://www.jianshu.com/p/b5b74099ea35)
+###### 学习指数：⭐
 
 ## 719
 #### JAVA
@@ -304,3 +305,4 @@ new AlertDialog.Builder(this)
 ![20210719230456](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719230456.png)
 * 基本注解
 * 自定义注解
+###### 学习指数：⭐
