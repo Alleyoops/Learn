@@ -282,3 +282,15 @@ new AlertDialog.Builder(this)
 ![20210717231240](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717231240.png)
 ![20210717231443](https://raw.githubusercontent.com/Alleyoops/Image/main/20210717231443.png)
 ###### 学习指数：⭐
+
+## 718
+#### JAVA
+###### [super和this的区别](https://www.jianshu.com/p/b5b74099ea35)
+
+## 719
+#### JAVA
+###### 包package
+![20210719161113](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719161113.png)
+###### 封装和隐藏
+![20210719161138](https://raw.githubusercontent.com/Alleyoops/Image/main/20210719161138.png)
+* 当字段为 public 时，其他对象可以直接访问该字段并对其进行修改，而不会被拥有该字段的对象检测到。通过使用 private 属性封装该字段，可以禁止对字段的直接访问
