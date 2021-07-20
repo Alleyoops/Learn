@@ -126,6 +126,7 @@
     }
 ```
 ###### 文本编辑框EditText
+* 可以设置onClick点击事件，不过要点击两次（先获得焦点，再是点击），想实现只点击一次可以设置OnFocusChangeListener监听器，重写onFocusChange方法
 * 获取编辑框最大长度
 ```
 	// 获取编辑框的最大长度，通过反射机制调用隐藏方法
@@ -310,6 +311,35 @@ new AlertDialog.Builder(this)
 ## 720
 #### 安卓
 ###### 共享参数SharedPreference
+###### 数据库SQLite
+```
+public class UserDBHelper extends SQLiteOpenHelper {
+    private static final String TAG = "UserDBHelper";
+    private static final String DB_NAME = "user.db"; // 数据库的名称
+    private static final int DB_VERSION = 1; // 数据库的版本号
+    private static UserDBHelper mHelper = null; // 数据库帮助器的实例
+    private SQLiteDatabase mDB = null; // 数据库的实例
+    public static final String TABLE_NAME = "user_info"; // 表的名称
+    //重写构造方法(private)
+    private UserDBHelper(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
+    }
+    //重载构造方法
+    private UserDBHelper(Context context, int version) {
+        super(context, DB_NAME, null, version);
+    }
+    // 利用单例模式获取数据库帮助器的唯一实例
+    public static UserDBHelper getInstance(Context context, int version) {
+        if (version > 0 && mHelper == null) {
+            mHelper = new UserDBHelper(context, version);
+        } else if (mHelper == null) {
+            mHelper = new UserDBHelper(context);
+        }
+        return mHelper;
+    }
+···
+}
+```
 
 #### JAVA
 ###### 单例模式

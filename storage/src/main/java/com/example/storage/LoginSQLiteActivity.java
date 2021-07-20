@@ -49,7 +49,11 @@ public class LoginSQLiteActivity extends AppCompatActivity implements OnClickLis
     private boolean bRemember = false; // 是否记住密码
     private String mPassword = "111111"; // 默认密码
     private String mVerifyCode; // 验证码
-    private UserDBHelper mHelper; // 声明一个用户数据库帮助器对象
+
+    // 声明一个用户数据库帮助器对象
+    private UserDBHelper mHelper;
+
+    private EditText test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +76,10 @@ public class LoginSQLiteActivity extends AppCompatActivity implements OnClickLis
         initTypeSpinner();
         // 给密码编辑框注册一个焦点变化监听器，一旦焦点发生变化，就触发监听器的onFocusChange方法
         et_password.setOnFocusChangeListener(this);
+        test = findViewById(R.id.test);
+        test.setFocusable(false);
+        test.setClickable(true);
+        test.setOnClickListener(this);
     }
 
     // 初始化用户类型的下拉框
@@ -200,6 +208,9 @@ public class LoginSQLiteActivity extends AppCompatActivity implements OnClickLis
                     loginSuccess(); // 提示用户登录成功
                 }
             }
+        }
+        else if (v.getId() == R.id.test){
+            Toast.makeText(this,"hhaha",Toast.LENGTH_SHORT).show();
         }
     }
 

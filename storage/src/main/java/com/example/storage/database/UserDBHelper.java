@@ -20,7 +20,7 @@ public class UserDBHelper extends SQLiteOpenHelper {
     private static UserDBHelper mHelper = null; // 数据库帮助器的实例
     private SQLiteDatabase mDB = null; // 数据库的实例
     public static final String TABLE_NAME = "user_info"; // 表的名称
-//重写构造方法(private)
+    //重写构造方法(private)
     private UserDBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -28,7 +28,6 @@ public class UserDBHelper extends SQLiteOpenHelper {
     private UserDBHelper(Context context, int version) {
         super(context, DB_NAME, null, version);
     }
-
     // 利用单例模式获取数据库帮助器的唯一实例
     public static UserDBHelper getInstance(Context context, int version) {
         if (version > 0 && mHelper == null) {
@@ -68,7 +67,7 @@ public class UserDBHelper extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate");
         String drop_sql = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
         Log.d(TAG, "drop_sql:" + drop_sql);
-        db.execSQL(drop_sql);
+        db.execSQL(drop_sql);//创建之前删除已存在的表
         String create_sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ("
                 + "_id INTEGER PRIMARY KEY  AUTOINCREMENT NOT NULL,"
                 + "name VARCHAR NOT NULL," + "age INTEGER NOT NULL,"
