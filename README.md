@@ -306,3 +306,8 @@ new AlertDialog.Builder(this)
 * 基本注解
 * 自定义注解
 ###### 学习指数：⭐
+
+## 720
+###### 安卓
+* 共享参数SharedPreference
+* 

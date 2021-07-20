@@ -2,3 +2,4 @@ rootProject.name = "Learn"
 include ':junior'
 include ':middle'
 include ':loginapp'
+include ':storage'

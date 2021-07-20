@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/junior" />
             <option value="$PROJECT_DIR$/loginapp" />
             <option value="$PROJECT_DIR$/middle" />
+            <option value="$PROJECT_DIR$/storage" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
