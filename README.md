@@ -383,3 +383,4 @@ public class SingletonPatternDemo {
    }
 }
 ```
+###### 学习指数：⭐⭐
