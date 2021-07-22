@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import android.graphics.Bitmap;
@@ -34,7 +35,7 @@ public class FileUtil {
         try {
             // 根据指定文件路径构建文件输入流对象
             FileInputStream fis = new FileInputStream(path);
-            byte[] b = new byte[fis.available()];
+            byte[] b = new byte[fis.available()];//available,获得字节数
             // 从文件输入流读取字节数组
             fis.read(b);
             // 把字节数组转换为字符串
@@ -85,12 +86,11 @@ public class FileUtil {
         File[] files = null;
         File directory = new File(path);
         if (extendArray != null && extendArray.length > 0) {
-            FilenameFilter fileFilter = getTypeFilter(extendArray);
+            FilenameFilter fileFilter = getTypeFilter(extendArray);//过滤文件名
             files = directory.listFiles(fileFilter);
         } else {
             files = directory.listFiles();
         }
-
         if (files != null) {
             for (File f : files) {
                 if (!f.isDirectory() && !f.isHidden()) {

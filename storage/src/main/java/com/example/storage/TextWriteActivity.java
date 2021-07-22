@@ -97,7 +97,7 @@ public class TextWriteActivity extends AppCompatActivity implements OnClickListe
             content = String.format("%s　婚否：%s\n", content, typeArray[!bMarried ? 0 : 1]);
             content = String.format("%s　注册时间：%s\n", content, DateUtil.getNowDateTime("yyyy-MM-dd HH:mm:ss"));
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                String file_path = mPath + DateUtil.getNowDateTime("") + ".txt";
+                String file_path = mPath + "test"+DateUtil.getNowDateTime("") ;
                 // 把文本字符串保存为文本文件
                 FileUtil.saveText(file_path, content);
                 tv_path.setText("用户注册信息文件的保存路径为：\n" + file_path);

@@ -78,7 +78,7 @@ public class AppWriteActivity extends AppCompatActivity implements OnClickListen
                 showToast("请先填写体重");
                 return;
             }
-            // 获取当前应用的Application实例
+            // 获取当前应用的Application实例// 利用单例模式获取当前应用的唯一实例
             MainApplication app = MainApplication.getInstance();
             // 以下直接修改Application实例中保存的映射全局变量
             app.mInfoMap.put("name", name);

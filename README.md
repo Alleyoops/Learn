@@ -384,3 +384,103 @@ public class SingletonPatternDemo {
 }
 ```
 ###### 学习指数：⭐⭐
+
+## 722
+#### JAVA
+###### file类
+```
+//下面的实例演示了File对象的使用：
+import java.io.File;
+public class DirList {
+    public static void main(String args[]) {
+        String dirname = "/java";
+        File f1 = new File(dirname);
+        if (f1.isDirectory()) {
+            System.out.println("Directory of " + dirname);
+            String s[] = f1.list();
+            for (int i = 0; i < s.length; i++) {
+                File f = new File(dirname + "/" + s[i]);
+                if (f.isDirectory()) {
+                    System.out.println(s[i] + " is a directory");
+                } else {
+                    System.out.println(s[i] + " is a file");
+                }
+            }
+        } else {
+            System.out.println(dirname + " is not a directory");
+        }
+    }
+}
+//以上实例编译运行结果如下：
+Directory of /java
+bin is a directory
+lib is a directory
+demo is a directory
+test.txt is a file
+README is a file
+index.html is a file
+include is a directory
+```
+###### Java.io.FilenameFilter文件名过滤器
+[FilenameFilter使用方法介绍](https://blog.csdn.net/u013592116/article/details/73180033)
+* (1)String[] fs = f.list();
+* (2)File[] fs = f.listFiles();<br>
+这两个方法返回f下的所有文件或目录；
+FilenameFilter用来把符合要求的文件或目录返回；
+因此可以调用：<br>
+* (1)String []fs = f.list(FilenameFilter filter);
+* (2)File[]fs = f.listFiles(FilenameFilter filter);
+```
+//FilenameFilter的使用举例
+//System.getProperty("catalina.home")获取到Tomcat的根路径，比如：D:\Program Files (x86)\tomcat\apache-tomcat-7.0.70-windows-x86\apache-tomcat-7.0.70
+
+File dataDirectory = new File(System.getProperty("catalina.home") + File.separator + "test" + File.separator + "conf");// 这里获取的是：D:\Program Files (x86)\tomcat\apache-tomcat-7.0.70-windows-x86\apache-tomcat-7.0.70\test\conf
+        // 数据源文件必定要是properties类型。 
+        File[] dataFiles = dataDirectory.listFiles(new FilenameFilter() {
+//以config_db开头，文件后缀为.properties的将被选出来，其余被过滤掉
+            @Override
+            public boolean accept(File dir, String name) {
+                String fileName = name.toLowerCase();
+
+                if (fileName.endsWith(".properties")) {
+                    if(fileName.startsWith("config_db")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+```
+###### “==”和“.equals”
+* `==`值相等
+* `.equals`内容相等
+###### Map.entrySet()和Map.Entry()
+[遍历map的四种方法及Map.entry详解](https://blog.csdn.net/gm371200587/article/details/82108372)
+* Map.entrySet()这个方法返回的是一个`Set<Map.Entry<K,V>>`
+* Map.Entry()是Map中的一个接口，它的用途是表示一个`映射项`（里面有Key和Value），而Set<Map.Entry<K,V>>表示一个映射项的Set。Map.Entry里有相应的getKey和getValue方法，即JavaBean，让我们能够从一个项中取出Key和Value。
+
+#### 安卓
+###### SD卡文件操作
+###### 应用Application基础
+* Application是安卓的一大组件，在app运行过程中有且只有一个Application对象贯穿整个生命周期
+* 默认的Application节点没有指定name属性
+* 利用Application操作全局变量
+    * C/C++有全局变量，因为全局变量保存在内存中，所以操作全局变量就是操作内存，内存的读写速度远比读写数据库或读写文件快得多。全局的意思是其他代码都可以引用该变量，因此全局变量是共享数据和消息传递的好帮手。不过，Java 没有全局变量的概念。与之比较接近的是类里面的静态成员变量，该变量可被外部直接引用，并且在不同地方引用的值是一样的(前提是在引用期间不能修改该变量的值),所以可以借助静态成员变量实现类似全局变量的功能。
+    * 知道 Application 的生命周期。其生命周期覆盖 App 运行的全过程。不像短暂的 Activity 生命周期，只要进入别的页面，原页面就被停止或销毁。因此,通过利用 Application 的持久存在性可以在 Application 对象中保存全局变量。适合在 Application 中保存的全局变量主要有下面 3 类数据：
+        * 会频繁读取的信息，如用户名、手机号等。
+
+        * 从网络上获取的临时数据，为节约流量、减少用户等待时间，想暂时放在内存中供下次使用，如 logo、商品图片等。
+
+        * 容易因频繁分配内存而导致内存泄漏的对象，如 Handler 对象等。
+###### xmlns:
+* 它是 XML 文档中的一个概念：英文叫做 XML namespace，中文翻译为 XML 命名空间
+###### android四大组件
+* 页面Activity
+* 广播Broadcast
+* 服务Service
+* 内容提供器ContentProvider
+###### 内容提供与处理
+* 内容提供器是跟数据存储有关的组件，完整的`内容组件`由以下三部分组成：
+    * 内容提供器ContentProvider
+    * 内容解析器ContentResolver
+    * 内容观察器ContentObserver

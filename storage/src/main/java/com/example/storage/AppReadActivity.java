@@ -27,7 +27,7 @@ public class AppReadActivity extends AppCompatActivity {
 		MainApplication app = MainApplication.getInstance();
 		// 获取Application实例中保存的映射全局变量
 		Map<String, String> mapParam = app.mInfoMap;
-		// 遍历映射全局变量内部的键值对信息
+		// 遍历映射全局变量内部的键值对信息。Entry:映射
 		for (Map.Entry<String, String> item_map : mapParam.entrySet()) {
 			desc = String.format("%s\n　%s的取值为%s", 
 					desc, item_map.getKey(), item_map.getValue());
