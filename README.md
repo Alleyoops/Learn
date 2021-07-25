@@ -522,3 +522,48 @@ File dataDirectory = new File(System.getProperty("catalina.home") + File.separat
 * SD卡文件
 * 全局内存(利用Application)
 * 内容提供器ContentProvider
+###### 日期时间控件
+* 日期选择器DatePicker(Dialog)
+* 时间选择器TimePicker(Dialog)
+###### ViewHolder,ConvertView
+* 要想使用 ListView 就需要编写一个 Adapter 将数据适配到 ListView上，而为了节省资源提高运行效率，一般自定义类 ViewHolder 来减少 findViewById() 的使用以及避免过多地 inflate view，从而实现目标，如：
+```
+    // 定义一个视图持有者，以便重用列表项的视图资源
+    public final class ViewHolder {
+        public ImageView iv_icon; // 声明行星图片的图像视图对象
+        public TextView tv_name; // 声明行星名称的文本视图对象
+        public TextView tv_desc; // 声明行星描述的文本视图对象
+    }
+```
+* [android开发 BaseAdapter的convertView参数是什么意思](https://zhidao.baidu.com/question/423895201122905772.html)<br>
+在listview中，每一条item都是一个新的对象，如果的数据源里面有一万条数据的话就要生成一万个item，手机内存直接就溢出了，所以android中出现了回收机制，在运行getView时，会检测是不是有item从屏幕上面滚动出去，如果有一个item从屏幕上方出去了的话，这个item就会被回收，被回收的这个item就会传入convertView，所以convertView中回收的视图何以重复利用<br>
+参考：[Android性能：经典ListView适配器convertView缓存及复用机制](https://blog.csdn.net/zhangphil/article/details/78435502)<br>
+PS：有点难理解ಥ_ಥ555~
+```
+    // 获取指定位置的列表项视图
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) { // 转换视图为空
+            holder = new ViewHolder(); // 创建一个新的视图持有者
+            // 根据布局文件item_list.xml生成转换视图对象
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_list, null);
+            holder.iv_icon = convertView.findViewById(R.id.iv_icon);
+            holder.tv_name = convertView.findViewById(R.id.tv_name);
+            holder.tv_desc = convertView.findViewById(R.id.tv_desc);
+            // 将视图持有者保存到转换视图当中
+            convertView.setTag(holder);
+        } else { // 转换视图非空
+            // 从转换视图中获取之前保存的视图持有者
+            holder = (ViewHolder) convertView.getTag();
+        }
+        Planet planet = mPlanetList.get(position);
+        holder.iv_icon.setImageResource(planet.image); // 显示行星的图片
+        holder.tv_name.setText(planet.name); // 显示行星的名称
+        holder.tv_desc.setText(planet.desc); // 显示行星的描述
+        return convertView;
+    }
+```
+###### View和ViewGroup
+在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器！ Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局）<br>
+![20210725182848](https://raw.githubusercontent.com/Alleyoops/Image/main/20210725182848.png)
+###### 学习指数：⭐
