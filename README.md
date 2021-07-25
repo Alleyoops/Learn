@@ -485,3 +485,32 @@ File dataDirectory = new File(System.getProperty("catalina.home") + File.separat
     * 内容解析器ContentResolver
     * 内容观察器ContentObserver
 ###### 学习指数：⭐⭐
+
+## 724
+#### JAVA
+###### 静态块（static{}）
+[Java static关键字与static{}语句块](https://blog.csdn.net/qq_41647999/article/details/87966487)<br>
+（1） static关键字还有一个比较关键的作用，用来形成静态代码块（static{}(即static块)）以`优化程序性能`。
+
+（2） static块可以置于类中的任何地方，类中可以有多个static块。
+
+（3） 在类初次被加载的时候执行且`仅会被执行一次`（这是优化性能的原因！！！），会按照static块的顺序来执行每个static块，一般用来初始化静态变量和调用静态方法。
+#### 安卓
+###### android:exported和android:enabled
+[android:exported、enabled属性](https://blog.csdn.net/sandalphon4869/article/details/87703775)
+* android:exported 
+    * 是Android中的四大组件 Activity，Service，Provider，Receiver 四大组件中都会有的一个属性。
+    * 代表是否能被其他应用隐式调用。
+* android:enabled 
+    * 是否可以被系统实例化，默认为 true因为父标签 也有 enable 属性，所以必须两个都为默认值 true 的情况下服务才会被激活，否则不会激活。  
+###### ContentProvider
+* [ContentProvider,SQLiteOpenHelper,SQLiteDatabase三者之间的区别和联系](https://blog.csdn.net/androidzhaoxiaogang/article/details/8180628)
+* [为什么有contentprovider](https://zhidao.baidu.com/question/1640151995493632780.html)
+* ContentProvider应用程序间非常通用的共享数据的一种方式，也是Android官方推荐的方式。Android中许多系统应用都使用该方式实现数据共享，比如通讯录、短信等。但我遇到很多做Android开发的人都不怎么使用它，觉得直接读取数据库会更简单方便，设计用意在于：[参考链接](https://www.jianshu.com/p/5c2f1f9cc419)
+    * 1、封装，对数据进行封装，提供统一的接口，`使用者完全不必关心这些数据是在DB，XML、Preferences或者网络请求来的`。当项目需求要改变数据来源时，使用我们的地方完全不需要修改。（当然，要结合其他两个内容组件来实现）
+    * 2、提供一种跨进程数据共享的方式
+###### 学习指数：⭐
+
+## 725
+#### 安卓
+###### 菜单Menu
