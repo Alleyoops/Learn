@@ -514,3 +514,11 @@ File dataDirectory = new File(System.getProperty("catalina.home") + File.separat
 ## 725
 #### 安卓
 ###### 菜单Menu
+* 选项菜单OptionMenu（手动打开选项菜单可以调用openOptionsMenu()方法）
+* 上下文菜单ContextMenu（openContextMenu(v); // 显式打开上下文菜单）
+###### 5种存储方式
+* 共享参数SharedPreferences
+* 数据库SQLite
+* SD卡文件
+* 全局内存(利用Application)
+* 内容提供器ContentProvider
