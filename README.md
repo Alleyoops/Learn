@@ -780,11 +780,47 @@ public class MonthPicker extends DatePicker {
     * 布局尺寸测量
 * 宽高尺寸的动态调整（重写onMeasure方法）
     * ScrollView本身叫做滚动视图，而列表视图ListView也是可以滚动的，一个滚动视图嵌套另一个也能滚动的视图，那么在双方的重叠区域，上下滑动的手势究竟表示要滚动哪个视图?这就是`滚动冲突`的问题，所以Android 目前的处理对策是:如果ListView的高度被设置为wrap content, 则此时列表视图只显示一行的高度，然后布局内部只支持滚动ScrollView,但是又带来一个新问题，列表视图仅仅显示一行内容
-    * 改造列表视图的一个可行方案，便是重写它的测量函数onMeasure,不管布局文件中设定的视图高度为何，都把`列表视图ListView的高度改为最大高度`，即所有列表项高度加起来的总高度。根据以上思路自定义一个扩展自ListView的不滚动列表视图NoSCrollListView,它的实现代码如下所示:
+    * 改造列表视图的一个可行方案，便是重写它的测量函数onMeasure,不管布局文件中设定的视图高度为何，都把`列表视图ListView的高度改为最大高度`，即所有列表项高度加起来的总高度。<br>根据以上思路自定义一个扩展自ListView的不滚动列表视图`NoSCrollListView`,它的实现代码如下所示:
+    <br>（重写onMeasure函数还可用来让视图适应横竖屏）
 ```
+//自定义的`NoSCrollListView`小组件
+package com.example.custom.widget;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.ListView;
+public class NoScrollListView extends ListView {
+    public NoScrollListView(Context context) {
+        super(context);
+    }
+    public NoScrollListView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+    public NoScrollListView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+    // 重写onMeasure方法，以便自行设定视图的高度
+    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // 将高度设为最大值，即所有项加起来的总高度
+        int expandSpec = MeasureSpec.makeMeasureSpec(
+                Integer.MAX_VALUE >> 2, MeasureSpec.AT_MOST);
+        super.onMeasure(widthMeasureSpec, expandSpec);
+    }
+}
 ```
-
+```
+            <com.example.custom.widget.NoScrollListView
+                android:id="@+id/nslv_planet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="50dp"
+                android:dividerHeight="1dp" />
+```
+* 绘制视图
+    * onLayout用于定位子视图在本布局视图中的位置
+    * onDraw是最常用的绘图方法，该方法的入参为Canvas画布对象
+    * dispatchDraw也是绘图方法，调用在绘制子视图之后，onDraw调用在绘制视图之前
 ###### 自定义动画
 ###### 自定义对话框
 ###### 自定义通知栏
+###### 学习指数：⭐⭐
