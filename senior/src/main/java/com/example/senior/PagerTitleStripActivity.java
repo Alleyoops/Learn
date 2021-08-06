@@ -35,7 +35,7 @@ public class PagerTitleStripActivity extends AppCompatActivity implements OnPage
         // 设置翻页标题栏的文本大小
         pts_title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         // 设置翻页标题栏的文本颜色
-        pts_title.setTextColor(Color.BLUE);
+        pts_title.setTextColor(Color.RED);
     }
 
     // 初始化翻页视图

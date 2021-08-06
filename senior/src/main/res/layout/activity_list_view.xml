@@ -31,9 +31,9 @@
         android:id="@+id/lv_planet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dividerHeight="5dp"
         android:divider="@drawable/divider_red2"
-        android:headerDividersEnabled="true"
-        android:footerDividersEnabled="true" />
+        android:dividerHeight="5dp"
+        android:footerDividersEnabled="true"
+        android:headerDividersEnabled="true" />
 
 </LinearLayout>

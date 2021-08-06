@@ -567,3 +567,224 @@ PS：有点难理解ಥ_ಥ555~
 在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器！ Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局）<br>
 ![20210725182848](https://raw.githubusercontent.com/Alleyoops/Image/main/20210725182848.png)
 ###### 学习指数：⭐
+
+## 726
+#### 安卓
+###### 列表视图ListView
+* 分行展示
+* ListView与Spinner类似。<br>
+    * 同：将列出的选项先创建成字符串数组资源，再赋值给entries，执行时自动列出数组内容。
+    * 异：
+        * 1）Spinner等用户按下，才会展开选项内容，ListView在画面上直接列出。
+        * 2）选取事件监听器所使用的接口不同。
+###### 网格试图GridView
+* 分行又分列展示
+###### 翻页视图ViewPager(允许页面在水平方向左右滑动)
+* 对于 ViewPager 来说，一个页面就是一个项（相当于 ListView 的一个列表项），许多   面组成 ViewPager 的页面项。明确了 ViewPager 的原理类似 ListView 和 GridView，翻页视图的用法也与它俩类似。ListView 和 GridView的适配器使用 BaseAdapter, ViewPager 的适配器使用 PagerAdapter;ListView 和 GridView 的监听器使用 OnltemClickListener，ViewPager 的监听器使用OnPageChangeListener,表示监听页面切换事件。
+* 设置页面切换监听器addOnPageChangeListener，实现接口OnPageListener三个方法：
+    * onPageScrollStateChanged：页面滑动状态变化时触发
+    * onPageScrolled：页面滑动过程中触发
+    * onPageSelected：选中页面时，即滑动结束后触发
+* 可应用于简单的欢迎页
+```
+    <!-- 注意翻页视图ViewPager的节点名称要填全路径 -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_content"
+        android:layout_width="match_parent"
+        android:layout_height="400dp" />
+```
+###### 学习指数：⭐
+
+## 806
+#### 安卓
+###### 翻页标题栏PagerTitleStrip/PagerTabStrip
+* 后者可以点击进行页面切换而已
+```
+    <!-- 注意翻页视图ViewPager的节点名称要填全路径 -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_content"
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
+
+        <!-- 注意翻页标题栏PagerTitleStrip的节点名称要填全路径 -->
+        <android.support.v4.view.PagerTitleStrip
+            android:id="@+id/pts_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </android.support.v4.view.ViewPager>
+```
+###### 碎片Fragment
+* Fragment 的出现一方面是为了缓解 Activity 任务过重的问题，另一方面是为了处理在不同屏幕上 UI 组件的布局问题，而且它还提供了一些新的特性（例如 Retainable）来处理一些在 Activity 中比较棘手的问题。
+* Fragment 拥有和 Activity 一致的生命周期，它和 Activity 一样被定义为 Controller 层的类。有过中大型项目开发经验的开发者，应该都会遇到过 Activity 过于臃肿的情况，而 Fragment 的出现就是为了缓解这一状况，可以说 它将屏幕分解为多个「Fragment（碎片）」（这句话很重要），但它又不同于 View，它干的实质上就是 Activity 的事情，负责控制 View 以及它们之间的逻辑。
+* 将屏幕碎片化为多个 Fragment 后，其实 Activity 只需要花精力去管理当前屏幕内应该显示哪些 Fragments，以及应该对它们进行如何布局就行了。这是一种组件化的思维，用 Fragment 去组合了一系列有关联的 UI 组件，并管理它们之间的逻辑，而 Activity 负责在不同屏幕下（例如横竖屏）布局不同的 Fragments 组合。
+* 使用`静态注册`需要注意以下两点:
+    * (1)fragment节点必须指定id属性，否则App运行时会报错Must specify unique android:id,android:tag, or have a parent with an id for ***.
+    * (2)如果页面代码继承自Activity, Fragment类就必须继承自android.app.Fragment, 不能使用android.support.v4.app.Fragment,否则App运行会报错Trying to instantiate a class \*** that is not a Fragment 或报错java.lang.ClassCastException : \*** cannot be cast toandroid. app.Fragment;如果页面代码继承自AppCompatActivity或FragmentActivity,那么无论是android app.Fragment还是android.support.v4.app.Fragment都可以使用。
+* Fragment拥有两种使用方式，即静态注册和`动态注册`。相比静态注册，实际开发中动态注册用得更多。`静态注册在布局文件中直接指定Fagment而动态注册直到在代码中才动态添加Frngmet`。`动态碎片`就是给翻页视图用的，ViewPager 和Fragment是一对好搭档。用到FragmentStatePagerAdapter适配器。
+* 很重要的一点：进入第一个Fragment, 实际只加载了第一 页和第二页，并没有加载全部Fragment。这正是Fragment的优越之处，无论当前位于哪一页， 系统都只会加载当前页及相邻的前后两页，总共加载不超过三页。一旦发生页面切换，相邻页面就被加载，非相邻页面就被回收。这么做的好处是节省了宝贵的系统资源，只有用户正在浏览与将要浏览的Fragment才会加载，避免所有Fragment一起加载造成资源浪费，这正是普通ViewPager的缺点。
+###### 广播Broadcast
+* 用于Android组件之间的灵活通信
+* 发送广播
+```
+    // 创建一个广播事件的意图
+    Intent intent = new Intent(BroadcastFragment.EVENT);
+    intent.putExtra("seq", arg2);
+    intent.putExtra("color", mColorIdArray[arg2]);
+    // 通过本地的广播管理器来发送广播
+    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+```
+* 接受广播
+```
+    // 定义一个广播接收器，用于处理背景色变更事件
+    private class BgChangeReceiver extends BroadcastReceiver {
+
+        // 一旦接收到背景色变更的广播，马上触发接收器的onReceive方法
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                // 从广播消息中取出最新的颜色
+                int color = intent.getIntExtra("color", Color.WHITE);
+                // 把页面背景设置为广播发来的颜色
+                ll_brd_temp.setBackgroundColor(color);
+            }
+        }
+    }
+```
+```
+    // 声明一个背景色变更的广播接收器
+    private BgChangeReceiver bgChangeReceiver;
+```
+```
+    @Override
+    public void onStart() {
+        super.onStart();
+        // 创建一个背景色变更的广播接收器
+        bgChangeReceiver = new BgChangeReceiver();
+        // 创建一个意图过滤器，只处理指定事件来源的广播
+        IntentFilter filter = new IntentFilter(BroadcastFragment.EVENT);
+        // 注册广播接收器，注册之后才能正常接收广播
+        LocalBroadcastManager.getInstance(this).registerReceiver(bgChangeReceiver, filter);
+    }
+```
+```
+    @Override
+    public void onStop() {
+        super.onStop();
+        // 注销广播接收器，注销之后就不再接收广播
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(bgChangeReceiver);
+    }
+```
+* 定时器AlarmManager
+    * 全局定时器，利用系统闹钟定时发送广播
+    * 即使app退出，也能自动响应
+    * 在AndroidManifest.xml的application节点下增加广播接收器的声明（凡是在AndroidManifest.xml中声明的就叫静态注册，在代码中声明叫动态注册，android9.0后只能动态注册）
+```
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_alarm) {
+            // 创建一个广播事件的意图
+            Intent intent = new Intent(ALARM_EVENT);
+            // 创建一个用于广播的延迟意图
+            PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            // 从系统服务中获取闹钟管理器
+            AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            // 给当前时间加上若干秒
+            calendar.add(Calendar.SECOND, mDelay);
+            // 开始设定闹钟，延迟若干秒后，携带延迟意图发送闹钟广播
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            mDesc = DateUtil.getNowTime() + " 设置闹钟";
+            tv_alarm.setText(mDesc);
+        }
+    }
+```
+`PendingIntent是延迟的意图，只要不是立即传递的消息，都要用PendingIntent，PendingIntent调用了getBroadcast方法，表示这次携带的消息用于发送广播，getBroadcast返回的PendingIntent对象`
+```
+    // 适配Android9.0开始
+    @Override
+    public void onStart() {
+        super.onStart();
+        // 从Android9.0开始，系统不再支持静态广播，应用广播只能通过动态注册
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // 创建一个闹钟的广播接收器
+            alarmReceiver = new AlarmReceiver();
+            // 创建一个意图过滤器，只处理指定事件来源的广播
+            IntentFilter filter = new IntentFilter(ALARM_EVENT);
+            // 注册广播接收器，注册之后才能正常接收广播
+            registerReceiver(alarmReceiver, filter);
+        }
+    }
+```
+###### 月份选择器
+* android提供了日期选择器DatePicker和时间选择器TimePicker，却没有月份选择器MonthPicker，其实把日期选择器后面的日子隐藏就行了
+```
+//自定义打包一个widget组件：
+
+package com.example.senior.widget;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.DatePicker;
+// 由日期选择器派生出月份选择器
+public class MonthPicker extends DatePicker {
+    public MonthPicker(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        // 获取年月日的下拉列表项
+        ViewGroup vg = ((ViewGroup) ((ViewGroup) getChildAt(0)).getChildAt(0));
+        if (vg.getChildCount() == 3) {
+            // 有的机型显示格式为“年月日”，此时隐藏第三个控件
+            vg.getChildAt(2).setVisibility(View.GONE);
+        } else if (vg.getChildCount() == 5) {
+            // 有的机型显示格式为“年|月|日”，此时隐藏第四个和第五个控件（即“|日”）
+            vg.getChildAt(3).setVisibility(View.GONE);
+            vg.getChildAt(4).setVisibility(View.GONE);
+        }
+    }
+}
+```
+```
+//在布局文件中直接引用：
+
+            <com.example.senior.widget.MonthPicker
+                android:id="@+id/mp_month"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
+                android:gravity="center"
+                android:spinnersShown="true" />
+```
+###### 震动器Vibrator
+* 要在AndroiManifest.xml中加上权限
+```
+    <!-- 震动 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+```
+```
+    // 从系统服务中获取震动管理器
+    Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    // 命令震动器吱吱个3秒
+    vibrator.vibrate(3000);
+```
+###### 自定义视图
+* 声明属性
+* 构造对象
+    * (1)重写构造函数，初始化该视图的自有属性。
+    * (2)重写测量函数onMeasure,计算该视图的宽与高(一般只有复杂视图才重写该函数)。
+    * (3)重写绘图函数onL ayout、onDraw、 dispatchDraw, 视情况重写3个中的一个或多个。
+* 测量尺寸
+    * 文本尺寸测量
+    * 图形尺寸测量
+    * 布局尺寸测量
+* 宽高尺寸的动态调整（重写onMeasure方法）
+    * ScrollView本身叫做滚动视图，而列表视图ListView也是可以滚动的，一个滚动视图嵌套另一个也能滚动的视图，那么在双方的重叠区域，上下滑动的手势究竟表示要滚动哪个视图?这就是`滚动冲突`的问题，所以Android 目前的处理对策是:如果ListView的高度被设置为wrap content, 则此时列表视图只显示一行的高度，然后布局内部只支持滚动ScrollView,但是又带来一个新问题，列表视图仅仅显示一行内容
+    * 改造列表视图的一个可行方案，便是重写它的测量函数onMeasure,不管布局文件中设定的视图高度为何，都把`列表视图ListView的高度改为最大高度`，即所有列表项高度加起来的总高度。根据以上思路自定义一个扩展自ListView的不滚动列表视图NoSCrollListView,它的实现代码如下所示:
+```
+
+```
+
+###### 自定义动画
+###### 自定义对话框
+###### 自定义通知栏

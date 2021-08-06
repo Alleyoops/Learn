@@ -6,9 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 
-/**
- * Created by ouyangshen on 2018/1/2.
- */
 // 由日期选择器派生出月份选择器
 public class MonthPicker extends DatePicker {
     public MonthPicker(Context context, AttributeSet attrs) {

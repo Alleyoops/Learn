@@ -99,35 +99,5 @@ public class BroadcastFragment extends Fragment {
     public void onStart() {
         super.onStart();
         initSpinner();
-        // 创建一个背景色变更的广播接收器
-        bgChangeReceiver = new BgChangeReceiver();
-        // 创建一个意图过滤器，只处理指定事件来源的广播
-        IntentFilter filter = new IntentFilter(BroadcastFragment.EVENT);
-        // 注册广播接收器，注册之后才能正常接收广播
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(bgChangeReceiver, filter);
     }
-
-    @Override
-    public void onStop() {
-        // 注销广播接收器，注销之后就不再接收广播
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(bgChangeReceiver);
-        super.onStop();
-    }
-
-    // 声明一个背景色变更的广播接收器
-    private BgChangeReceiver bgChangeReceiver;
-    // 定义一个广播接收器，用于处理背景色变更事件
-    private class BgChangeReceiver extends BroadcastReceiver {
-
-        // 一旦接收到背景色变更的广播，马上触发接收器的onReceive方法
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                // 从广播消息中取出最新的颜色序号
-                mColorSeq = intent.getIntExtra("seq", 0);
-                // 设置下拉框默认显示该序号项
-                sp_bg.setSelection(mColorSeq);
-            }
-        }
-    }
-
 }

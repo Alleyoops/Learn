@@ -91,5 +91,4 @@ public class BroadTempActivity extends AppCompatActivity {
             }
         }
     }
-
 }
