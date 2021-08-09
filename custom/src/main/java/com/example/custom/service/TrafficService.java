@@ -56,7 +56,6 @@ public class TrafficService extends Service {
             mHandler.postDelayed(this, 10000);
         }
     };
-
     private void refreshData() {
         mNowDay = Integer.parseInt(DateUtil.getNowDateTime("yyyyMMdd"));
         // 获取最新的应用信息队列

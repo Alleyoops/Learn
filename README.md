@@ -821,6 +821,142 @@ public class NoScrollListView extends ListView {
     * onDraw是最常用的绘图方法，该方法的入参为Canvas画布对象
     * dispatchDraw也是绘图方法，调用在绘制子视图之后，onDraw调用在绘制视图之前
 ###### 自定义动画
+* 任务Runable
+    * 实现Runable接口需要重写run函数，在启动Runable实例时就会调用对象的run方法，实际开发中经常利用handler启动Runable任务
+```
+    private boolean isStarted = false; // 是否开始计数
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    private int mCount = 0; // 计数值
+    // 定义一个计数任务
+    private Runnable mCounter = new Runnable() {
+        @Override
+        public void run() {
+            mCount++;
+            tv_result.setText("当前计数值为：" + mCount);
+            // 延迟一秒后重复计数任务
+            mHandler.postDelayed(this, 1000);
+        }
+    };
+
+        @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_runnable) {
+            if (!isStarted) { // 不在计数，则开始计数
+                btn_runnable.setText("停止计数");
+                // 立即启动计数任务
+                mHandler.post(mCounter);
+            } else { // 已在计数，则停止计数
+                btn_runnable.setText("开始计数");
+                // 立即取消计数任务
+                mHandler.removeCallbacks(mCounter);
+            }
+            isStarted = !isStarted;
+        }
+    }
+```
 ###### 自定义对话框
+* 窗口Windows
+    * App界面附着在窗口Windows上。大至整个活动页面，小至Toast的提示窗口，以及对话框Dialog都建立在窗口上。
+    * Windows的5个常用方法：
+        * setContentView：设置内容视图
+        * setLayout：设置内容视图的宽、高尺寸
+        * setGravity：设置内容视图的对齐方式
+        * setBackgroundDrawble：设置内容视图的背景
+        * findViewById：根据资源ID获取该视图的对象
 ###### 自定义通知栏
+* 通知推送Notification
+    * 简单消息
+    * 计时消息
+    * Android8.0后要求每条通知都区分它的重要性程度
+* 进度条ProgressBar
+    * 消息通知Notification的setProgress方法是对内置进度条进行操作，不过很多时候进度条会单独使用。
+    * 进度条的常用属性
+    * 进度条的常用方法
+    * progressDrawable进度图形不能用普通图形，只能用层次图形LayerDrawable。层次图形可在XML文件中定义。
+* 远程视图RemoteViews
+    * 前面介绍Notification 的常用方法时提到setContent 方法可以在设置定制的通知栏视图RemoteViews时取代Builder的默认视图模板。这表示通知栏允许自定义，并且自定义通知栏需要采用远程视图RemoteViews。
+    * 与活动页面相比，如果说对话框是一个小型页面，远程视图就是一个小型且简化的页面。简化的意思是功能减少了，限制变多了。虽然RemoteViews与Activity 一样有自己的布局文件，但是RemoteViews的使用权限小了很多。两者的区别主要有:
+        * (1) RemoteViews主要用于`通知栏部件`和`桌面部件`，而Activity用于页面。
+        * (2) RemoteViews只支持少数几种控件，如TextView、ImageView、Button、ImageButton、ProgressBar、Chronometer(计时器)和AnalogClock(模拟时钟)。
+        * (3) RemoteViews不可直接获取和设置控件信息，`只能通过该对象的set方法修改控件信息`。
 ###### 学习指数：⭐⭐
+
+## 809
+#### 安卓
+###### 服务Service
+* Service是Android的四大组件之一，常用在看不见页面的高级场合，如系统的闹钟服务、通知服务
+* Service与Activity相比，不同之处在于没有对应的页面，相同之处在于都有`生命周期`
+* 服务Service存在多种启停方式
+    * 普通启停
+    ```
+        @Override
+    public int onStartCommand(Intent intent, int flags, int startid) { // 启动服务，Android2.0以上使用
+        Log.d(TAG, "测试服务到此一游！");
+        refresh("onStartCommand. flags=" + flags);
+        return START_STICKY;
+    }
+    ```
+    ```
+            // 创建一个通往普通服务的意图
+        mIntent = new Intent(this, NormalService.class);
+    ```
+    ```
+        @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_start) { // 点击了启动服务按钮
+            startService(mIntent); // 启动指定意图的服务
+        } else if (v.getId() == R.id.btn_stop) { // 点击了停止服务按钮
+            stopService(mIntent); // 停止指定意图的服务
+        }
+    }
+    ```
+    * 立即绑定
+        * 因为绑定的服务可能运行于另一个进程，所以必须定义一个Binder对象用来进行进程间的通信
+        ```
+        // 创建一个粘合剂对象
+        private final IBinder mBinder = new LocalBinder();
+        // 定义一个当前服务的粘合剂，用于将该服务黏到活动页面的进程中
+        public class LocalBinder extends Binder {
+            public BindImmediateService getService() {
+                return BindImmediateService.this;
+            }
+        }
+        ```
+        * 在Activity 中，绑定/解绑服务的做法与普通方式不同，首先要定义一个ServiceConnection的服务连接对象，然后调用bindService 方法或unbindService方法进行绑定或解绑操作，具体的示例代码如下:
+        ```
+                private ServiceConnection mFirstConn = new ServiceConnection() {
+
+            // 获取服务对象时的操作
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                // 如果服务运行于另外一个进程，则不能直接强制转换类型，
+                // 否则会报错“java.lang.ClassCastException: android.os.BinderProxy cannot be cast to...”
+                mBindService = ((BindImmediateService.LocalBinder) service).getService();
+                Log.d(TAG, "onServiceConnected");
+            }
+
+            // 无法获取到服务对象时的操作
+            public void onServiceDisconnected(ComponentName name) {
+                mBindService = null;
+                Log.d(TAG, "onServiceDisconnected");
+            }
+        };
+        ```
+    * 延迟绑定
+        * 延迟绑定与立即绑定的区别在于：延迟绑定是在页面上先通过startService方法启动服务，然后通过bindSerice方法绑定已存在的服务。这样一来，因为启动操作在先，所以解绑操作只能撒销绑定操作，而不能撤销启动操作。由于解绑服务不能停止服务，因此存在再次绑定服务的可能。
+        * 延迟绑定与立即绑定两种方式的生命周期区别在于:
+            * (1)延迟绑定的首次绑定操作只调用onBind方法，再次绑定只调用onRebind方法(是否允许再次绑定要看上次onUnbind方法的返回值)
+            * (2)延迟绑定的解绑操作只调用onUnbind方法。
+* 推送服务到前台
+    * startForeground：切换到前台，即展示到通知栏
+    * stopForeground：停止前台运行
+    * 从android9.0开始，要想在服务中调用startForeground方法，需要修改AndroidManifest.xml，添加前台服务权限配置：
+    ```
+        <!-- 允许前台服务 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    ```
+    * 要想让触发的事件作用域服务内部，只能通过广播的方式（getBroadcast方法 instead of getActivity方法）
+###### 应用包管理器PackageManager
+* 获取已安装应用的应用包信息，包括应用的进程编号、名称、图标以及流量信息。其中，应用包的基本信息可通过PackageManager 与ApplicationInfo 联合获得
+* 应用产生的流量数据可通过工具类TrafficStats读取
+###### 标签按钮
+
