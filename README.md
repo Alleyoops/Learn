@@ -959,4 +959,252 @@ public class NoScrollListView extends ListView {
 * 获取已安装应用的应用包信息，包括应用的进程编号、名称、图标以及流量信息。其中，应用包的基本信息可通过PackageManager 与ApplicationInfo 联合获得
 * 应用产生的流量数据可通过工具类TrafficStats读取
 ###### 标签按钮
+* 要想高亮显示背景，可通过给background属性设置状态图形;要想高亮显示图标，可通过给drawableTop属性设置状态图形;高亮显示文本也能通过给)textColor属性设置状态图形StateDrawable实现<br>
+![20210809212927](https://i.loli.net/2021/08/09/Q9bPAzMKnODsX4y.png)
+```
+    <!-- 注意这个文本视图的背景、文字颜色和顶部图标都采用了状态图形，使其看起来像个崭新的标签控件 -->
+    <TextView
+        android:id="@+id/tv_tab_button"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:padding="5dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@drawable/tab_bg_selector"
+        android:text="点我"
+        android:textSize="12sp"
+        android:textColor="@drawable/tab_text_selector"
+        android:drawableTop="@drawable/tab_first_selector" />
+```
+```
+<!-- 在style.xml中定义统一的新风格，只需在节点添加一行style=...即可 -->
+    <style name="TabButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/tab_bg_selector</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@drawable/tab_text_selector</item>
+    </style>
+```
+###### 底部标签栏
+* 基于TabActivity的标签栏
+    * 提供了TabHost和TabWidget两个控件
+    * 由于它们仅用于标签栏，学会套用固定框架就行
+    ```
+    <!-- 该方式的底部标签栏，根布局必须是TabHost，且id必须为@android:id/tabhost -->
+    <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@android:id/tabhost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <!-- 内容页面都挂在这个框架布局下面,FrameLayout必须命名为tabcontent -->
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/tabbar_height" />
+
+            <!-- 这是例行公事的选项部件，实际隐藏掉了,TabWidget必须命名为tabs-->
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <!-- 下面是事实上的底部标签栏，采取水平线性布局展示 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/tabbar_height"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <!-- 第一个标签控件 -->
+                <LinearLayout
+                    android:id="@+id/ll_first"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TabButton"
+                        android:drawableTop="@drawable/tab_first_selector"
+                        android:text="@string/menu_first" />
+                </LinearLayout>
+
+                <!-- 第二个标签控件 -->
+                <LinearLayout
+                    android:id="@+id/ll_second"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TabButton"
+                        android:drawableTop="@drawable/tab_second_selector"
+                        android:text="@string/menu_second" />
+                </LinearLayout>
+
+                <!-- 第三个标签控件 -->
+                <LinearLayout
+                    android:id="@+id/ll_third"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TabButton"
+                        android:drawableTop="@drawable/tab_third_selector"
+                        android:text="@string/menu_third" />
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </TabHost>
+    ```
+    ```
+    //页面代码关键语句：
+
+    private String FIRST_TAG = "first"; // 第一个标签的标识串
+
+    ll_first = findViewById(R.id.ll_first); // 获取第一个标签的线性布局
+
+    ll_first.setOnClickListener(this); // 给第一个标签注册点击监听器
+    
+    // 往标签栏添加第一个标签，其中内容视图展示TabFirstActivity
+    tab_host.addTab(getNewTab(FIRST_TAG, R.string.menu_first,
+    R.drawable.tab_first_selector, TabFirstActivity.class));
+
+    changeContainerView(ll_first); // 默认显示第一个标签的内容视图
+    ```
+    * 该方式核心是`getNewTab`函数
+* 基于ActivityGroup的标签栏
+    * ActivityGroup就是Activity的组合，允许在内部开启活动页面，即`ActivityGroup与Activity`的关系相当于`Activity与Fragment`的关系
+    * 该方式的布局文件与TabActivity方式相比，主要有三处改动：
+        * 根布局节点不在采用TabHost，改为LinearLayout
+        * 删除了`例行公事`的选型部件`TabWidget`
+        * 内容页面由`固定编号的框架布局`改成`自定义编号的线性布局`，且内容页面都挂在这个线性布局下面：
+        ```
+        <!-- 内容页面都挂在这个线性布局下面 -->
+        <LinearLayout
+        android:id="@+id/ll_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="bottom|center"
+        android:orientation="horizontal" />
+        ```
+    * 页面代码的变化集中在如何切换标签页，该方式的核心是`toActivity`函数
+* 基于FragmeActivity的标签栏
+    * 与ActivityGroup采用一对多个Activity相比，此方式采用的是一对多个Fragment
+    * 代码相比前两种比较简洁明了
+    ```
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 这是实际的内容框架，内容页面都挂在这个框架布局下面。
+            把FragmentLayout放在FragmentTabHost上面，标签栏就在页面底部；
+            反之FragmentLayout在FragmentTabHost下面，标签栏就在页面顶部。 -->
+        <FrameLayout
+            android:id="@+id/realtabcontent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- 碎片标签栏的id必须是@android:id/tabhost -->
+        <android.support.v4.app.FragmentTabHost
+            android:id="@android:id/tabhost"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tabbar_height">
+
+            <!-- 这是例行公事的选项内容，实际看不到 -->
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="0" />
+        </android.support.v4.app.FragmentTabHost>
+    </LinearLayout>
+    ```
+    ```
+    //直接在页面代码中指定每个标签按钮的视图和对应的Fragment页面
+
+    package com.example.group;
+
+    import com.example.group.fragment.TabFirstFragment;
+    import com.example.group.fragment.TabSecondFragment;
+    import com.example.group.fragment.TabThirdFragment;
+
+    import android.graphics.drawable.Drawable;
+    import android.os.Bundle;
+    import android.support.v4.app.FragmentTabHost;
+    import android.support.v7.app.AppCompatActivity;
+    import android.view.View;
+    import android.widget.LinearLayout;
+    import android.widget.TabHost.TabSpec;
+    import android.widget.TextView;
+
+    public class TabFragmentActivity extends AppCompatActivity {
+        private static final String TAG = "TabFragmentActivity";
+        private FragmentTabHost tabHost; // 声明一个碎片标签栏对象
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_tab_fragment);
+            Bundle bundle = new Bundle(); // 创建一个包裹对象
+            bundle.putString("tag", TAG); // 往包裹中存入名叫tag的标记
+            // 从布局文件中获取名叫tabhost的碎片标签栏
+            tabHost = findViewById(android.R.id.tabhost);
+            // 把实际的内容框架安装到碎片标签栏
+            tabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+            // 往标签栏添加第一个标签，其中内容视图展示TabFirstFragment
+            tabHost.addTab(getTabView(R.string.menu_first, R.drawable.tab_first_selector),
+                    TabFirstFragment.class, bundle);
+            // 往标签栏添加第二个标签，其中内容视图展示TabSecondFragment
+            tabHost.addTab(getTabView(R.string.menu_second, R.drawable.tab_second_selector),
+                    TabSecondFragment.class, bundle);
+            // 往标签栏添加第三个标签，其中内容视图展示TabThirdFragment
+            tabHost.addTab(getTabView(R.string.menu_third, R.drawable.tab_third_selector),
+                    TabThirdFragment.class, bundle);
+            // 不显示各标签之间的分隔线
+            tabHost.getTabWidget().setShowDividers(LinearLayout.SHOW_DIVIDER_NONE);
+        }
+
+        // 根据字符串和图标的资源编号，获得对应的标签规格
+        private TabSpec getTabView(int textId, int imgId) {
+            // 根据资源编号获得字符串对象
+            String text = getResources().getString(textId);
+            // 根据资源编号获得图形对象
+            Drawable drawable = getResources().getDrawable(imgId);
+            // 设置图形的四周边界。这里必须设置图片大小，否则无法显示图标
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            // 根据布局文件item_tabbar.xml生成标签按钮对象
+            View item_tabbar = getLayoutInflater().inflate(R.layout.item_tabbar, null);
+            TextView tv_item = item_tabbar.findViewById(R.id.tv_item_tabbar);
+            tv_item.setText(text);
+            // 在文字上方显示标签的图标
+            tv_item.setCompoundDrawables(null, drawable, null, null);
+            // 生成并返回该标签按钮对应的标签规格
+            return tabHost.newTabSpec(text).setIndicator(item_tabbar);
+        }
+    }
+    ```
+    * 该方式的核心是addTab函数
+    * 因为FragmentTabHost已经自动处理了点击事件，所以无须另外调用sSelectede方法。该方式与前两种方式的不同之处在于标签页是Fragment而不是Activity，因此标签页内部无法直接操作选项菜单。
+###### 学习指数：⭐
+
+## 810
+#### 安卓
+###### 工具栏Toolbar
