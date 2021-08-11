@@ -1281,7 +1281,7 @@ public class MenuUtil {
 
 }
 ```
-* 菜单布局中将`showAsAction`属性设置为`ifRoom`或`always`，不过即使工具栏上还有空间，该菜单项也不会显示在工具栏上，解决办法挺简单，首先在菜单局的menu根节点增加命名空间声明`xmlns:app="http://schemas.android.com/apk/res-auto"`，然后把`android:showAsAction="ifRoom"`改为`app:showAsAction="ifRoom"`。（这分明就是`自定义属性的做法`）。下面来看用于溢出菜单的布局文件代码：
+* 菜单布局中将`showAsAction`属性设置为`ifRoom`或`always`，不过即使工具栏上还有空间，该菜单项也不会显示在工具栏上，解决办法挺简单，首先在菜单局的menu根节点增加命名空间声明`xmlns:app="http://schemas.android.com/apk/res-auto"`，然后把`android:showAsAction="ifRoom"`改为`app:showAsAction="ifRoom"`。（这分明就是`自定义属性的做法`）。<br>下面来看用于溢出菜单的布局文件代码：(可见第一个item直接显示在了有剩余空间的导航栏上)<br>
 ![20210811153444](https://i.loli.net/2021/08/11/hRTf3vFCx6awkou.png)
 ![20210811153539](https://i.loli.net/2021/08/11/U2cN31aPVFiOzL4.png)
 ```
@@ -1308,3 +1308,146 @@ public class MenuUtil {
         android:title="退出"/>
 </menu>
 ```
+###### 搜索框SearchView
+* 在菜单布局文件中定义搜索项：
+```
+    <item
+        android:id="@+id/menu_search"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="ifRoom"
+        android:title="搜索"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+```
+* 在res/xml目录下新建searchable.xml，设置搜索框的样式代码：
+```
+<searchable xmlns:android="http://schemas.android.com/apk/res/android"
+    android:label="@string/app_name"
+    android:hint="@string/please_input"
+    android:inputType="text"
+    android:searchButtonText="@string/search" />
+```
+* 在AndroidManifest.xml中加入一个搜索结果页面的activity节点定义，需要指定action和meta-data：
+```
+<span style="font-size:18px;"><intent-filter>
+        <action android:name="android.intent.action.SEARCH" />
+   </intent-filter>
+ 
+   <meta-data
+        android:name="android.app.searchable"
+        android:resource="@xml/searchable" /></span>
+```
+* 在页面代码中初始化搜索框：
+```
+    // 根据菜单项初始化搜索框
+    private void initSearchView(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        // 从菜单项中获取搜索框对象
+        SearchView searchView = (SearchView) menuItem.getActionView();
+        // 设置搜索框默认自动缩小为图标
+        searchView.setIconifiedByDefault(getIntent().getBooleanExtra("collapse", true));
+        // 设置是否显示搜索按钮。搜索按钮只显示一个箭头图标，Android暂不支持显示文本。
+        // 查看Android源码，搜索按钮用的控件是ImageView，所以只能显示图标不能显示文字。
+        searchView.setSubmitButtonEnabled(true);
+        // 从系统服务中获取搜索管理器
+        SearchManager sm = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        // 创建搜索结果页面的组件名称对象
+        ComponentName cn = new ComponentName(this, SearchResultActvity.class);
+        // 从结果页面注册的activity节点获取相关搜索信息，即searchable.xml定义的搜索控件
+        SearchableInfo info = sm.getSearchableInfo(cn);
+        if (info == null) {
+            Log.d(TAG, "Fail to get SearchResultActvity.");
+            return;
+        }
+```
+* 搜索框比较复杂，详情参考[Android中的Searchable使用，及删除记录](https://blog.csdn.net/antimage08/article/details/50783131)
+###### 标签布局TabLayout
+* `design库`中的标签布局`TabLayout`,使用该控件前要先修改build.gradle,在dependencies节点中加入一行代码表示导入design库，例如：
+```
+implementation 'com android.supprt:design:28.0.0
+```
+* TabLayout的展现形式类似于PagerTabStrip, 同样是文字标签带下划线，不同的是TabLayout允许定制更丰富的样式
+```
+        <!-- 注意TabLayout节点需要使用完整路径 -->
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:tabIndicatorColor="@color/red"
+            app:tabIndicatorHeight="2dp"
+            app:tabSelectedTextColor="@color/red"
+            app:tabTextColor="@color/grey"
+            app:tabTextAppearance="@style/TabText" />
+```
+* 同样，把TabLayout与`ViewPager`结合起来就是一个固定的套路，使用时直接套框架就行
+```
+    // 初始化标签布局
+    private void initTabLayout() {
+        // 从布局文件中获取名叫tab_title的标签布局
+        tab_title = findViewById(R.id.tab_title);
+        // 给tab_title添加一个指定文字的标签
+        tab_title.addTab(tab_title.newTab().setText(mTitleArray.get(0)));
+        // 给tab_title添加一个指定文字的标签
+        tab_title.addTab(tab_title.newTab().setText(mTitleArray.get(1)));
+        // 给tab_title添加标签选中监听器
+        tab_title.addOnTabSelectedListener(this);
+    }
+
+    // 初始化标签翻页
+    private void initTabViewPager() {
+        // 从布局文件中获取名叫vp_content的翻页视图
+        vp_content = findViewById(R.id.vp_content);
+        // 构建一个商品信息的翻页适配器
+        GoodsPagerAdapter adapter = new GoodsPagerAdapter(
+                getSupportFragmentManager(), mTitleArray);
+        // 给vp_content设置商品翻页适配器
+        vp_content.setAdapter(adapter);
+        // 给vp_content添加页面变更监听器
+        vp_content.addOnPageChangeListener(new SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // 选中tab_title指定位置的标签
+                tab_title.getTabAt(position).select();
+            }
+        });
+    }
+
+    // 在标签被重复选中时触发
+    public void onTabReselected(Tab tab) {}
+
+    // 在标签选中时触发
+    public void onTabSelected(Tab tab) {
+        // 让vp_content显示指定位置的页面
+        vp_content.setCurrentItem(tab.getPosition());
+    }
+
+    // 在标签取消选中时触发
+    public void onTabUnselected(Tab tab) {}
+```
+* TabLayout默认采用文本标签，也支持自定义标签，除了放文本还可以放图像，比如加一个角标。<br>
+![20210811172036](https://i.loli.net/2021/08/11/NifBk16yeZWzghQ.png)
+###### 自定义指示器
+* 指示器即banner或者欢迎页下面的一排圆点<br>
+![20210811173926](https://i.loli.net/2021/08/11/C4qeamWT7r9sR2n.png)
+* 要`实现指示器的左右平滑滚动效果`，得用到`ViewPager`的页面变化监听器`OnPageChangeListener`，关于前面学ViewPager的监听器时提到的三种方法<br>
+onPageScrollStateChanged：页面滑动状态变化时触发<br>
+onPageScrolled：页面滑动过程中触发<br>
+onPageSelected：选中页面时，即滑动结束后触发<br>
+在具体场合有下面两种用法：
+    * 只实现onPageSelected方法，在页面滚动结束时触发(该用法最常见)。<br>
+    只需创建一个SimpleOnPageChangeListener实例即可，该内部类在ViewPager源码中已经封装好了，开发者只需实现onPageSelected方法即可：
+    ```
+    //给翻页视图添加简 单的页面变更监听器，此时只需重写onPageSelected 方法
+
+    Vp_ banner.addOnPageChangeListener(new SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            //高亮显示该位置的指示按钮
+            setButton(position);
+        }
+        });
+    ```
+    * 三种方法都实现。适用于指示器，特别是onPageScrolled方法的参数已经明确指出当前的滚动进度，正好给指示器的滚动位置提供参考
+* 自定义指示器控件
+###### 学习指数：⭐
