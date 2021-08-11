@@ -1205,6 +1205,106 @@ public class NoScrollListView extends ListView {
     * 因为FragmentTabHost已经自动处理了点击事件，所以无须另外调用sSelectede方法。该方式与前两种方式的不同之处在于标签页是Fragment而不是Activity，因此标签页内部无法直接操作选项菜单。
 ###### 学习指数：⭐
 
-## 810
+## 811
 #### 安卓
 ###### 工具栏Toolbar
+* Android5.0之后推出了Toolbar工具栏控件，意在取代ActionBar，但ActionBar仍然保留，所以`引入Toolbar前要先关闭ActionBar`:
+    * 在style.xml中定义一个不包含ActionBar的风格样式：
+    ```
+        < name="AppCompatTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+    ```
+    * 修改AndroidManifest.xml，把activity节点下的android:theme属性值修改为上一步定义的风格：
+    ```
+    android:theme="@style/AppCompatTheme"
+    ```
+    * 将页面布局文件的根节点改为LinearLayout，且为vertical方向；然后增加Toolbar元素（Toolbar本质是一个`ViewGroup`，所以里面可以添加别的控件）：
+    ```
+        <android.support.v7.widget.Toolbar
+        android:id="@+id/tl_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    ```
+    * Activity代码改为继承自`AppCompatActivity`（一般新建文件时就是默认继承AppCompatActivity）
+###### 溢出菜单OverflowMenu
+* 导航栏右边往往有个三点图标，点击后会弹出菜单。这个右上角的弹出菜单名叫溢出菜单，意指导航栏不够放了、溢出来了
+* 溢出菜单其实就是把`选项菜单OptionsMenu`撤到了页面右上方，具体的菜单布局与代码用法基本同选项菜单，不同之处在于溢出菜单多了个`showAsAction`属性，该属性用来控制菜单项在导航栏上的展示位置
+* 默认情况下，菜单列表的菜单项不会在文字左边显示图标，即使在菜单布局中设置了属性也没有作用所以想让菜单项显示左侧图标就得调用`MenuBuilder`的`setOptionalIconsVisible`方法。`该方法是一个隐藏方法，只能通过反射机制调用`：
+```
+//自定义的一个工具类
+
+package com.example.group.util;
+
+import android.content.Context;
+import android.view.Menu;
+import android.view.ViewConfiguration;
+import android.view.Window;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+public class MenuUtil {
+
+    // 如果设备有物理菜单按键，需要将其屏蔽才能显示OverflowMenu
+    // API18以下需要该函数在右上角强制显示选项菜单
+    // 现在的开发过程中显然不必要求以下代码
+    public static void forceShowOverflowMenu(Context context) {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(context);
+            Field menuKeyField = ViewConfiguration.class.
+                    getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 显示OverflowMenu的Icon
+    public static void setOverflowIconVisible(int featureId, Menu menu) {
+        // ActionBar的featureId是8，Toolbar的featureId是108
+        if (featureId % 100 == Window.FEATURE_ACTION_BAR && menu != null) {
+            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
+                try {
+                    // setOptionalIconsVisible是个隐藏方法，需要通过反射机制调用
+                    Method m = menu.getClass().getDeclaredMethod(
+                            "setOptionalIconsVisible", Boolean.TYPE);
+                    m.setAccessible(true);
+                    m.invoke(menu, true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+}
+```
+* 菜单布局中将`showAsAction`属性设置为`ifRoom`或`always`，不过即使工具栏上还有空间，该菜单项也不会显示在工具栏上，解决办法挺简单，首先在菜单局的menu根节点增加命名空间声明`xmlns:app="http://schemas.android.com/apk/res-auto"`，然后把`android:showAsAction="ifRoom"`改为`app:showAsAction="ifRoom"`。（这分明就是`自定义属性的做法`）。下面来看用于溢出菜单的布局文件代码：
+![20210811153444](https://i.loli.net/2021/08/11/hRTf3vFCx6awkou.png)
+![20210811153539](https://i.loli.net/2021/08/11/U2cN31aPVFiOzL4.png)
+```
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_refresh"
+        app:showAsAction="ifRoom"
+        android:title="刷新"/>
+    <item
+        android:id="@+id/menu_about"
+        android:orderInCategory="8"
+        android:icon="@drawable/ic_about"
+        app:showAsAction="never"
+        android:title="关于"/>
+    <item
+        android:id="@+id/menu_quit"
+        android:orderInCategory="9"
+        android:icon="@drawable/ic_quit"
+        app:showAsAction="never"
+        android:title="退出"/>
+</menu>
+```
