@@ -1450,4 +1450,179 @@ onPageSelected：选中页面时，即滑动结束后触发<br>
     ```
     * 三种方法都实现。适用于指示器，特别是onPageScrolled方法的参数已经明确指出当前的滚动进度，正好给指示器的滚动位置提供参考
 * 自定义指示器控件
+    * 自定义BannerIndicator（手动滑动）<br>
+        * 自定义widget：
+        ```
+        public class BannerIndicator extends RelativeLayout implements View.OnClickListener{
+            ···
+            //重写OnPageCahngedListener接口的onPageScrolled方法，在该方法中调用指示器的setCurrent方法就能动态刷新高亮远点的滚动动画：
+
+                // 定义一个广告轮播监听器
+                private class BannerChangeListener implements ViewPager.OnPageChangeListener {
+
+                    // 翻页状态改变时触发
+                    public void onPageScrollStateChanged(int arg0) {}
+
+                    // 在翻页过程中触发
+                    public void onPageScrolled(int seq, float ratio, int offset) {
+                        // 设置指示器高亮圆点的位置
+                        pi_banner.setCurrent(seq, ratio);
+                    }
+
+                    // 在翻页结束后触发
+                    public void onPageSelected(int seq) {
+                        // 设置指示器高亮圆点的位置
+                        pi_banner.setCurrent(seq, 0);
+                    }
+                }
+
+            }
+        ```
+        * 布局页面调用：
+        ```
+            <!-- 自定义的横幅指示器，需要使用全路径 -->
+            <com.example.group.widget.BannerIndicator
+            android:id="@+id/banner_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        ```
+        * activity代码中调用：
+        ```
+        package com.example.group;
+        import com.example.group.constant.ImageList;
+        import com.example.group.util.Utils;
+        import com.example.group.widget.BannerIndicator;
+        import com.example.group.widget.BannerIndicator.BannerClickListener;
+        import android.annotation.SuppressLint;
+        import android.os.Bundle;
+        import android.support.v7.app.AppCompatActivity;
+        import android.widget.TextView;
+        import android.widget.LinearLayout.LayoutParams;
+
+        @SuppressLint("DefaultLocale")
+        public class BannerIndicatorActivity extends AppCompatActivity implements BannerClickListener {
+            private static final String TAG = "BannerIndicatorActivity";
+            private TextView tv_pager;
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_banner_indicator);
+                tv_pager = findViewById(R.id.tv_pager);
+                // 从布局文件中获取名叫banner_indicator的横幅指示器
+                BannerIndicator banner = findViewById(R.id.banner_indicator);
+                LayoutParams params = (LayoutParams) banner.getLayoutParams();
+                params.height = (int) (Utils.getScreenWidth(this) * 250f / 640f);
+                // 设置横幅指示器的布局参数
+                banner.setLayoutParams(params);
+                // 设置横幅指示器的广告图片队列
+                banner.setImage(ImageList.getDefault());
+                // 设置横幅指示器的广告点击监听器
+                banner.setOnBannerListener(this);
+            }
+
+            // 一旦点击了广告图，就回调监听器的onBannerClick方法
+            public void onBannerClick(int position) {
+                String desc = String.format("您点击了第%d张图片", position + 1);
+                tv_pager.setText(desc);
+            }
+
+        }
+
+        ```
+    * 自定义BannerPager（自动滚动）<br>
+    前面给ViewPager加了指示器，但是并不能自动滚动。其实加一个`自定义动画`效果就行，只要把自定义的指示器结合`Handle`+`Runable`即可，相当于启动引导页的代码加上Handle与Runable组合
+        * 自定义widget：
+        ```
+            ···
+
+            // 声明一个处理器对象
+            private Handler mHandler = new Handler(); 
+            // 定义一个滚动任务
+            private Runnable mScroll = new Runnable() {
+                @Override
+                public void run() {
+                    scrollToNext(); // 滚动广告图片
+                    // 延迟若干秒后继续启动滚动任务
+                    mHandler.postDelayed(this, mInterval);
+                }
+            };
+            
+            ···
+
+                // 开始广告轮播
+            public void start() {
+                // 延迟若干秒后启动滚动任务
+                mHandler.postDelayed(mScroll, mInterval);
+            }
+
+            // 停止广告轮播
+            public void stop() {
+                // 移除滚动任务
+                mHandler.removeCallbacks(mScroll);
+            }
+
+            // 设置广告轮播的时间间隔
+            public void setInterval(int interval) {
+                mInterval = interval;
+            }
+        ```
+        * 布局页面调用：
+        ```
+        <!-- 自定义的横幅轮播条，需要使用全路径 -->
+        <com.example.group.widget.BannerPager
+        android:id="@+id/banner_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+        ```
+        * 在activity代码中调用。与上面的BannerIndicator存在细微差别。即要调用start方法启动轮播动画:
+        ```
+        package com.example.group;
+        import com.example.group.constant.ImageList;
+        import com.example.group.util.Utils;
+        import com.example.group.widget.BannerPager;
+        import com.example.group.widget.BannerPager.BannerClickListener;
+        import android.annotation.SuppressLint;
+        import android.os.Bundle;
+        import android.support.v7.app.AppCompatActivity;
+        import android.widget.TextView;
+        import android.widget.LinearLayout.LayoutParams;
+
+        @SuppressLint("DefaultLocale")
+        public class BannerPagerActivity extends AppCompatActivity implements BannerClickListener {
+            private static final String TAG = "BannerPagerActivity";
+            private TextView tv_pager;
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_banner_pager);
+                tv_pager = findViewById(R.id.tv_pager);
+                // 从布局文件中获取名叫banner_pager的横幅轮播条
+                BannerPager banner = findViewById(R.id.banner_pager);
+                // 获取横幅轮播条的布局参数
+                LayoutParams params = (LayoutParams) banner.getLayoutParams();
+                params.height = (int) (Utils.getScreenWidth(this) * 250f / 640f);
+                // 设置横幅轮播条的布局参数
+                banner.setLayoutParams(params);
+                // 设置横幅轮播条的广告图片队列
+                banner.setImage(ImageList.getDefault());
+                // 设置横幅轮播条的广告点击监听器
+                banner.setOnBannerListener(this);
+                // 开始广告图片的轮播滚动
+                banner.start();
+            }
+
+            // 一旦点击了广告图，就回调监听器的onBannerClick方法
+            public void onBannerClick(int position) {
+                String desc = String.format("您点击了第%d张图片", position + 1);
+                tv_pager.setText(desc);
+            }
+        }
+        ```
 ###### 学习指数：⭐
+
+## 812
+#### 安卓
+###### 顶到状态栏的Banner（悬浮/沉浸状态栏）
+* 
