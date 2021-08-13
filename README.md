@@ -1622,7 +1622,677 @@ onPageSelected：选中页面时，即滑动结束后触发<br>
         ```
 ###### 学习指数：⭐
 
-## 812
+## 813
 #### 安卓
 ###### 顶到状态栏的Banner（悬浮/沉浸状态栏）
-* 
+* Android4.4才开始支持沉浸式状态栏
+* Android5.0之后，系统允许定制状态栏的颜色
+* 实现状态栏悬浮在主页面之上后，想把悬浮着的状态栏`恢复原状`的一种思路是：给主页面设置一段`顶端空白`topMargin，如果移除主页面的顶端空白，状态栏就产生悬浮效果；如果添加主页面的顶端空白，状态栏就恢复原状。所以可以根据这样的思路来定制一个工具类。
+###### 循环试图RecyclerView
+* `RecyclerView`功能强大，强大到秒杀列表视图ListView、网格视图GridView，甚至秒杀瀑布流网格开源框架StaggeredGridView和PinterestLikeAdapterView
+* RecyclerView有专门的适配器类——RecyclerView.Adapter。在调用RecyclerView的setAdapter方法前。得先实现一个从RecyclerView.Adapter派生而来的数据适配器，用来定义列表项的布局与具体操作<br>
+
+适配器：
+```
+public class RecyclerLinearAdapter extends RecyclerView.Adapter<ViewHolder> implements
+        OnItemClickListener, OnItemLongClickListener {
+            ···
+            }
+```
+布局页面：
+```
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#aaaaff" />
+```
+页面代码：
+```
+    // 初始化线性布局的循环视图
+    private void initRecyclerLinear() {
+        // 从布局文件中获取名叫rv_linear的循环视图
+        RecyclerView rv_linear = findViewById(R.id.rv_linear);
+        // 创建一个垂直方向的线性布局管理器
+        LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayout.VERTICAL, false);
+        // 设置循环视图的布局管理器
+        rv_linear.setLayoutManager(manager);
+        // 构建一个公众号列表的线性适配器
+        RecyclerLinearAdapter adapter = new RecyclerLinearAdapter(this, GoodsInfo.getDefaultList());
+        // 设置线性列表的点击监听器
+        adapter.setOnItemClickListener(adapter);
+        // 设置线性列表的长按监听器
+        adapter.setOnItemLongClickListener(adapter);
+        // 给rv_linear设置公众号线性适配器
+        rv_linear.setAdapter(adapter);
+        // 设置rv_linear的默认动画效果
+        rv_linear.setItemAnimator(new DefaultItemAnimator());
+        // 给rv_linear添加列表项之间的空白装饰
+        rv_linear.addItemDecoration(new SpacesItemDecoration(1));
+    }
+```
+###### 布局管理器LayouManager
+* 布局管理器是RecyclerView强悍的精髓所在。
+* LayoutManager不但提供了`3类布局管理`，分别实现类似`列表视图`、`网格视图`、`瀑布流网格`的效果，还可在代码中随时由循环视图对象调用setLayoutManager方法`设置新的布局`，一旦调用该方法，界面会`根据新布局刷新列表项`（这个特性非常适用于横竖屏或者不同分辨率屏幕的切换，例如竖屏展示列表，横屏展示网格）
+* 下面是三类布局管理器：
+    * 线性布局管理器LinearLayoutManager
+        * 类似于线性布局LinearLayout
+        * 垂直方向布局时，展示效果类似于垂直的列表视图ListView，水平时则类似于水平的列表视图
+    * 网格布局管理器GridLayoutManager
+        * 类似于网格布局GridLayout
+        * 展示效果类似于网格视图GridView，所以把GridLayoutManager当成GridView一样使用就行
+        * 但相比GridView更高级的是，GridLayoutManager提供了`setSpanSizeLookup`方法，该方法允许一个网格占据多列空间，更加灵活易用，比如下图第一行的每个网格都占据了两列位置：<br>
+        ![20210813150739](https://i.loli.net/2021/08/13/MG4EWKg7UxhZjPy.png)
+    * 瀑布流网格布局管理器StaggeredGridLayoutManager
+        * 适用于要求外观尺寸不同的网格
+        * 只要在`适配器中`中动态设置每个网格的高度，系统就会自动在界面上一次排列瀑布流网格
+        * 重写SpacesItemDecoration，给网格增加边框，会涉及到`Rect类`。[关于安卓Rect类](https://blog.csdn.net/zqurapig/article/details/83537499?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-2.baidujsUnder6&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-2.baidujsUnder6)
+        ```
+            public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+            private int space; // 空白间隔
+
+            public SpacesItemDecoration(int space) {
+                this.space = space;
+            }
+
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                outRect.left = space; // 左边空白间隔
+                outRect.right = space; // 右边空白间隔
+                outRect.bottom = space; // 上方空白间隔
+                outRect.top = space; // 下方空白间隔
+            }
+        }
+        ```
+###### 动态更新循环视图
+* RecyclerView允许动态更新内部数据。不但可以单独更新某项视图，而且能够顺便展示增删动画<br>
+
+增：
+```
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_recycler_add) {
+            int position = (int) (Math.random() * 100 % mAllArray.size());
+            GoodsInfo old_item = mAllArray.get(position);
+            GoodsInfo new_item = new GoodsInfo(old_item.pic_id, old_item.title, old_item.desc);
+            mPublicArray.add(0, new_item);
+            // 通知适配器列表在第一项插入数据
+            mAdapter.notifyItemInserted(0);
+            // 让循环视图滚动到第一项所在的位置
+            rv_dynamic.scrollToPosition(0);
+        }
+    }
+```
+删：
+```
+    // 一旦点击循环适配器列表项的删除按钮，就触发删除监听器的onItemDeleteClick方法
+    public void onItemDeleteClick(View view, int position) {
+        mPublicArray.remove(position);
+        // 通知适配器列表在第几项删除数据
+        mAdapter.notifyItemRemoved(position);
+    }
+```
+###### 材质设计库MaterialDesign
+* MateriaIDesign材质设计库是Android在界面设计方面做出重大提升的`增强库`，该库提供了`协调布局CoordinatorLayout`、 `应用栏布局AppBarLayout`、 `可折叠工具栏布局CollapsingToolbarLayout`等等新颖控件
+* 使用design库前要先在build.gradle的dependencies节点下导入design库
+    * 协调布局CoordinatorLayout
+        * `协调布局CoordinatorLayout是MateriaIDesign材质设计库的基础`，几乎所有的design控件都依赖于该布局。所谓协调布局，指的是`内部控件互相之间存在着动作关联`，比如`在A视图的位置发生变化之时，B视图的位置也按照某种规则来变化`。
+        * 协调布局CoordinatorLayout继承自ViewGroup，实现效果类似于LinearLayout
+        * 根布局采用`android.support.design.widget.CoordinatorLayout`，且要添加命名空间声明`xmlns:android="http://schemas.android.com/apk/res/android`，例如：
+        ```
+            <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/cl_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/ll_main"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_floating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="30dp"
+                    android:text="隐藏悬浮按钮"
+                    android:textColor="@color/black"
+                    android:textSize="17sp" />
+            </LinearLayout>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_btn"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="20dp"
+                app:layout_anchor="@id/ll_main"
+                app:layout_anchorGravity="bottom|right"
+                android:background="@drawable/float_btn" />
+
+        </android.support.design.widget.CoordinatorLayout>
+        ```
+        * 悬浮按钮FloatingActionButton和便签条Snacker，展示何为“协调”，如图，悬浮按钮也会跟着上浮：<br>
+        ![20210813163205](https://i.loli.net/2021/08/13/c6P7DE5zhOJs2wB.png)
+        ![20210813163320](https://i.loli.net/2021/08/13/DuzcJvosdxWMTYw.png)
+        ```
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.btn_snackbar) {
+                // 在屏幕底部弹出一行提示条，注意悬浮按钮也会跟着上浮
+                Snackbar.make(cl_main, "这是个提示条", Snackbar.LENGTH_LONG).show();
+            } else if (v.getId() == R.id.btn_floating) {
+                if (floating_show) { // 已显示悬浮按钮
+                    fab_btn.hide(); // 隐藏悬浮按钮
+                    btn_floating.setText("显示悬浮按钮");
+                } else { // 未显示悬浮按钮
+                    fab_btn.show(); // 显示悬浮按钮
+                    btn_floating.setText("隐藏悬浮按钮");
+                }
+                floating_show = !floating_show;
+            }
+        }
+        ```
+    * 应用栏布局AppBarLayout
+        * 工具栏Toolbar用来替代ActionBar,使得导航栏的灵活性和易用性大大增强。可是`仅仅使用Toolbar的话，还是有些呆板，比如说Toolbar固定占据着页面项端，既不能跟着页面主体移上去，也不会跟着页面主体拉下来`。为了让App页面更加生动活泼，势必`要求Toolbar在某些特定的场景上移或者下拉`，如此才能满足酷炫的页面特效需求。为此，Android5.0推出MaterialDesign库，通过该库中的协调布局和本小节要介绍的`应用栏布局AppBarLayout`,将这`两种布局结合起来对Toolbar加以包装`，从而实现`顶部导航栏的动态变化效果`。应用栏布局AppBarLayout`继承自线性布局LinearLayout`，所以它具备了LinearLayout的所有属性与方法，除此之外，应用栏布局的额外功能主要有以下几点:
+            * (1)支持响应页面主体的滑动行为，即在页面主体进行上移或者下拉时，AppBarLayout能够捕捉到页面主体的滚动操作。
+            * (2)捕捉到滚动操作之后，还要通知头部控件(通常是Toolbar)，告诉头部控件要怎么滚动
+        * `顶部导航栏的动态滚动效果`具体实现需要：
+            * (1)在build.gradle中添加几个库的编译支持，包括`appcompat-v7库(Toolbar需要)`、`design库(AppBarLayout需要)`、`recyclerview库(主页面的RecyclerView需要)`
+            * (2)根布局采用`CoordinatorLayout`，因为design库的动态效果都依赖于该控件
+            * (3)使用AppBarLayout节点包裹Toolbar节点
+            * (4)给`Toolbar`节点添加属性`app:layout_scrollFlags="scroll|enterAlways"`，指定工具栏的滚动行为标志
+            * (5)`RecyclerView`控件添加`行为属性`即`app:layout_behavior="@string/appbar_scroll_view_behavior"`，表示通知AppBarLayout捕捉RecyclerView的滚动操作
+            ```
+                <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/abl_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/tl_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@color/blue_light"
+                        app:layout_scrollFlags="scroll|enterAlways" />
+                </android.support.design.widget.AppBarLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            </android.support.design.widget.CoordinatorLayout>
+            ```
+        * 虽然通过AppBarLayout可让Toolbar实现滚动效果，但`并非所有可滚动的控件都会触发Toolbar滚动`，事实上只有包括RecyclerView在内的少数控件才具有该特效
+        * 导航栏的滚动标志：[AppBarLayout中的五种ScrollFlags使用方式汇总](https://blog.csdn.net/eyishion/article/details/80282204)<br>
+        ![MVIMG_20210813_230413(1)](https://i.loli.net/2021/08/13/WSFa437ODMvoYyE.jpg)
+        * `嵌套滚动视图NestedScrollView`也可以配合AppBarLayout触发Toolbar滚动特效（但ScrollView不能），NestedScrollView继承自`FrameLayout`，用法与ScrollView相似，例如都必须且只能带一个子视图、都是允许内部视图上下滚动
+    * 可折叠工具栏布局CollapsingToolbarLayout
+        * 该布局节点包裹Toolbar节点，从而控制导航栏的展开和收缩行为（单纯一个Toolbar是无法上下拉动的）
+        * App在运行的时候，Toolbar的高度是固定不变的，`会发生高度变化的布局其实是CllapsingTobarLayout`（只是许多App把这两者的背景设为一种颜色，所以看起来像是统一的标题栏在收缩和展开）
+        * 使用CollapsingToolbarLayout，需要：
+            * (1)在build.gradle中添加几个库的编译支持，包括`appcompat-v7库(Toolbar需要)`、`design库(AppBarLayout、CollapsingToolbarLayout需要)`、`recyclerview库(主页面的RecyclerView需要)`
+            * (2)根布局采用`CoordinatorLayout`，因为design库的动态效果都依赖于该控件
+            * (3)`使用AppBarLayout节点包裹CollapsingToolbarLayout节点，再在CollapsingToolbarLayout下添加Toolbar节点`
+            * (4)给`Toolbar`节点添加属性`app:layout_scrollFlags="scroll|enterAlways"`，指定工具栏的滚动行为标志
+            * (5)`CollapsingToolbarLayout`和`RecyclerView`控件添加`行为属性`即`app:layout_behavior="@string/appbar_scroll_view_behavior"`，表示通知AppBarLayout捕捉RecyclerView的滚动操作
+            ```
+                <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/abl_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:background="@color/blue_light">
+
+                    <android.support.design.widget.CollapsingToolbarLayout
+                        android:id="@+id/ctl_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:title="欢乐中国年"
+                        app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                        app:contentScrim="?attr/colorPrimary"
+                        app:expandedTitleMarginStart="40dp">
+
+                        <!-- 注意属性layout_collapseMode作用于Toolbar控件 -->
+                        <android.support.v7.widget.Toolbar
+                            android:id="@+id/tl_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="?attr/actionBarSize"
+                            android:background="@color/red"
+                            app:layout_collapseMode="pin" />
+                    </android.support.design.widget.CollapsingToolbarLayout>
+                </android.support.design.widget.AppBarLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+            </android.support.design.widget.CoordinatorLayout>
+            ```
+        * CollapsingToolbarLayout的两个重要属性：
+            * 折叠模式属性`app:layout_collapseMode`<br>
+            ![MVIMG_20210813_215848(1)](https://i.loli.net/2021/08/13/q346EBkToHlpjWN.jpg)
+            * 折叠距离系数属性`app:layout_collapseParallaxMultiplier`
+                * 它指定了`视差模式parallax`时的折叠距离系数，取值在0.0到1.0之间，默认0.5
+                * 折叠时显示渐变图片：
+                ```
+                <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/cl_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <android.support.design.widget.AppBarLayout
+                        android:id="@+id/abl_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp"
+                        android:background="@color/blue_light">
+
+                        <android.support.design.widget.CollapsingToolbarLayout
+                            android:id="@+id/ctl_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_scrollFlags="scroll"
+                            app:contentScrim="#aaffaa"
+                            app:expandedTitleMarginStart="100dp">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_collapseMode="parallax"
+                                app:layout_collapseParallaxMultiplier="0.0"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/top_pic" />
+
+                            <android.support.v7.widget.Toolbar
+                                android:id="@+id/tl_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="?attr/actionBarSize"
+                                app:layout_collapseMode="pin"
+                                app:layout_scrollFlags="scroll|enterAlways" />
+
+                        </android.support.design.widget.CollapsingToolbarLayout>
+                    </android.support.design.widget.AppBarLayout>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rv_main"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+                </android.support.design.widget.CoordinatorLayout>
+                ```
+###### 实战：仿支付宝头部伸缩特效
+* 关于布局：<br>
+![20210813230218](https://i.loli.net/2021/08/13/D5hVlUC91JavmOX.png)
+![20210813230245](https://i.loli.net/2021/08/13/WR1fhpG4XuvKnJt.png)
+```
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/abl_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:contentScrim="@color/blue_dark">
+
+            <include
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/toolbar_height"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.7"
+                layout="@layout/life_pay" />
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbar_height"
+                app:layout_collapseMode="pin"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp">
+
+                <include
+                    android:id="@+id/tl_expand"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    layout="@layout/toolbar_expand" />
+
+                <include
+                    android:id="@+id/tl_collapse"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    layout="@layout/toolbar_collapse"
+                    android:visibility="gone" />
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</android.support.design.widget.CoordinatorLayout>
+```
+* 关于滑动时的渐变动画：<br>
+![20210813231446](https://i.loli.net/2021/08/13/GI4DEbVqWNktv59.png)
+![20210813231604](https://i.loli.net/2021/08/13/atVRUfoLGHyBew7.png)
+    * 淡入淡出渐变动画的思路：
+        * (1)为了解决这个动画问题，可以采取类似`遮罩`的做法，即开始`先给导航栏罩上一层透明的视图`，此时导航栏的画面就完全显示:然后`随着导航栏的移动距离，计算当前位置下的遮罩透明度`，使该遮罩变得越来越不透明，看起来导航栏像是蒙上了层薄雾面纱，蒙到最后就完全看不见了。反过来，也可以一开始`给导航栏罩上一层不透明的视图`，此时导航栏的所有控件都是看不见的，`然后随着距离的变化，遮罩变得越来越不透明`，导航栏也会跟着变得越来越清晰了。
+        * (2)现在渐变动画的思路有了，可谓万事俱备、只欠东风，再搞一个`导航栏的位置偏移监听事件`便行，正好有个现成的监听器`AppBarLayout.OnOffsetChangedListener`, 只需给应用栏布局对象调用`addOnOffsetChangedListener`方法，即可实现给导航栏注册偏移监听器的功能。
+    ```
+    package com.example.group;
+
+    import com.example.group.adapter.LifeRecyclerAdapter;
+    import com.example.group.bean.LifeItem;
+    import com.example.group.util.Utils;
+
+    import android.graphics.Color;
+    import android.os.Bundle;
+    import android.support.design.widget.AppBarLayout;
+    import android.support.design.widget.AppBarLayout.OnOffsetChangedListener;
+    import android.support.v7.app.AppCompatActivity;
+    import android.support.v7.widget.GridLayoutManager;
+    import android.support.v7.widget.RecyclerView;
+    import android.view.View;
+
+    public class ScrollAlipayActivity extends AppCompatActivity implements OnOffsetChangedListener {
+        private final static String TAG = "ScrollAlipayActivity";
+        private View tl_expand, tl_collapse; // 分别声明伸展时候与收缩时候的工具栏视图
+        private View v_expand_mask, v_collapse_mask, v_pay_mask; // 分别声明三个遮罩视图
+        private int mMaskColor; // 遮罩颜色
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_scroll_alipay);
+            // 获取默认的蓝色遮罩颜色
+            mMaskColor = getResources().getColor(R.color.blue_dark);
+            // 从布局文件中获取名叫rv_content的循环视图
+            RecyclerView rv_content = findViewById(R.id.rv_content);
+            // 设置循环视图的布局管理器（四列的网格布局管理器）
+            rv_content.setLayoutManager(new GridLayoutManager(this, 4));
+            // 给rv_content设置生活频道网格适配器
+            rv_content.setAdapter(new LifeRecyclerAdapter(this, LifeItem.getDefault()));
+            // 从布局文件中获取名叫abl_bar的应用栏布局
+            AppBarLayout abl_bar = findViewById(R.id.abl_bar);
+            // 从布局文件中获取伸展之后的工具栏视图
+            tl_expand = findViewById(R.id.tl_expand);
+            // 从布局文件中获取收缩之后的工具栏视图
+            tl_collapse = findViewById(R.id.tl_collapse);
+            // 从布局文件中获取伸展之后的工具栏遮罩视图
+            v_expand_mask = findViewById(R.id.v_expand_mask);
+            // 从布局文件中获取收缩之后的工具栏遮罩视图
+            v_collapse_mask = findViewById(R.id.v_collapse_mask);
+            // 从布局文件中获取生活频道的遮罩视图
+            v_pay_mask = findViewById(R.id.v_pay_mask);
+            // 给abl_bar注册一个位置偏移的监听器
+            abl_bar.addOnOffsetChangedListener(this);
+        }
+
+        // 每当应用栏向上滚动或者向下滚动，就会触发位置偏移监听器的onOffsetChanged方法
+        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            int offset = Math.abs(verticalOffset);
+            // 获取应用栏的整个滑动范围，以此计算当前的位移比例
+            int total = appBarLayout.getTotalScrollRange();
+            int alphaIn = Utils.px2dip(this, offset) * 2;
+            int alphaOut = (200 - alphaIn) < 0 ? 0 : 200 - alphaIn;
+            // 计算淡入时候的遮罩透明度
+            int maskColorIn = Color.argb(alphaIn, Color.red(mMaskColor),
+                    Color.green(mMaskColor), Color.blue(mMaskColor));
+            // 工具栏下方的生活频道布局要加速淡入或者淡出
+            int maskColorInDouble = Color.argb(alphaIn * 2, Color.red(mMaskColor),
+                    Color.green(mMaskColor), Color.blue(mMaskColor));
+            // 计算淡出时候的遮罩透明度
+            int maskColorOut = Color.argb(alphaOut * 3, Color.red(mMaskColor),
+                    Color.green(mMaskColor), Color.blue(mMaskColor));
+            if (offset <= total * 0.45) { // 偏移量小于一半，则显示伸展时候的工具栏
+                tl_expand.setVisibility(View.VISIBLE);
+                tl_collapse.setVisibility(View.GONE);
+                v_expand_mask.setBackgroundColor(maskColorInDouble);
+            } else { // 偏移量大于一半，则显示收缩时候的工具栏
+                tl_expand.setVisibility(View.GONE);
+                tl_collapse.setVisibility(View.VISIBLE);
+                v_collapse_mask.setBackgroundColor(maskColorOut);
+            }
+            // 设置life_pay.xml即生活频道视图的遮罩颜色
+            v_pay_mask.setBackgroundColor(maskColorIn);
+        }
+    }
+    ```
+###### 下拉刷新布局SwipeRefreshLayout
+* SwipeRefreshLayout节点下面`只能有一个直接子视图`。如果有多个直接子视图，那么只会展示第一个子视图，后面的子视图将不予展示。`这个直接子视图必须允许滚动`，比如`SrollView`、`ListView`、 `GridView`、`RecyclerView `等。如果不是这些视图，就不支持滚动，更不支持下拉刷新。比如：
+```
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <!-- 注意SwipeRefreshLayout节点必须使用完整路径 -->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl_simple"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- SwipeRefreshLayout的下级必须是可滚动的视图 -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_simple"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:text="这是一个简单视图"
+                android:textColor="#000000"
+                android:textSize="17sp" />
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>
+```
+```
+    // 一旦在下拉刷新布局内部往下拉动页面，就触发下拉监听器的onRefresh方法
+    public void onRefresh() {
+        tv_simple.setText("正在刷新");
+        // 延迟若干秒后启动刷新任务
+        mHandler.postDelayed(mRefresh, 2000);
+    }
+
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    // 定义一个刷新任务
+    private Runnable mRefresh = new Runnable() {
+        @Override
+        public void run() {
+            tv_simple.setText("刷新完成");
+            // 结束下拉刷新布局的刷新动作
+            srl_simple.setRefreshing(false);
+        }
+    };
+```
+* SwipeRefreshLayout更好的用法是`与RecyclerView相结合`,通过下拉刷新操作`动态添加循环视图的记录`，从而`省去一个添加按钮或刷新按钮`，就优化用户体验来说，避免按钮太多而显得凌乱。比如：
+```
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl_dynamic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_dynamic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#aaaaff" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+</LinearLayout>
+```
+```
+package com.example.group;
+
+import java.util.ArrayList;
+
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.example.group.adapter.LinearDynamicAdapter;
+import com.example.group.bean.GoodsInfo;
+import com.example.group.widget.SpacesItemDecoration;
+import com.example.group.widget.RecyclerExtras.OnItemClickListener;
+import com.example.group.widget.RecyclerExtras.OnItemDeleteClickListener;
+import com.example.group.widget.RecyclerExtras.OnItemLongClickListener;
+
+@SuppressLint("DefaultLocale")
+public class SwipeRecyclerActivity extends AppCompatActivity implements OnRefreshListener,
+        OnItemClickListener, OnItemLongClickListener, OnItemDeleteClickListener {
+    private SwipeRefreshLayout srl_dynamic; // 声明一个下拉刷新布局对象
+    private RecyclerView rv_dynamic; // 声明一个循环视图对象
+    private LinearDynamicAdapter mAdapter; // 声明一个线性适配器对象
+    private ArrayList<GoodsInfo> mPublicArray; // 当前公众号信息队列
+    private ArrayList<GoodsInfo> mAllArray; // 所有公众号信息队列
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_swipe_recycler);
+        // 从布局文件中获取名叫srl_dynamic的下拉刷新布局
+        srl_dynamic = findViewById(R.id.srl_dynamic);
+        // 给srl_dynamic设置下拉刷新监听器
+        srl_dynamic.setOnRefreshListener(this);
+        // 设置下拉刷新布局的进度圆圈颜色
+        srl_dynamic.setColorSchemeResources(
+                R.color.red, R.color.orange, R.color.green, R.color.blue);
+        initRecyclerDynamic(); // 初始化动态线性布局的循环视图
+    }
+
+    // 初始化动态线性布局的循环视图
+    private void initRecyclerDynamic() {
+        // 从布局文件中获取名叫rv_dynamic的循环视图
+        rv_dynamic = findViewById(R.id.rv_dynamic);
+        // 创建一个垂直方向的线性布局管理器
+        LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayout.VERTICAL, false);
+        // 设置循环视图的布局管理器
+        rv_dynamic.setLayoutManager(manager);
+        // 获取默认的所有公众号信息队列
+        mAllArray = GoodsInfo.getDefaultList();
+        // 获取默认的当前公众号信息队列
+        mPublicArray = GoodsInfo.getDefaultList();
+        // 构建一个公众号列表的线性适配器
+        mAdapter = new LinearDynamicAdapter(this, mPublicArray);
+        // 设置线性列表的点击监听器
+        mAdapter.setOnItemClickListener(this);
+        // 设置线性列表的长按监听器
+        mAdapter.setOnItemLongClickListener(this);
+        // 设置线性列表的删除按钮监听器
+        mAdapter.setOnItemDeleteClickListener(this);
+        // 给rv_dynamic设置公众号线性适配器
+        rv_dynamic.setAdapter(mAdapter);
+        // 设置rv_dynamic的默认动画效果
+        rv_dynamic.setItemAnimator(new DefaultItemAnimator());
+        // 给rv_dynamic添加列表项之间的空白装饰
+        rv_dynamic.addItemDecoration(new SpacesItemDecoration(1));
+    }
+
+    // 一旦在下拉刷新布局内部往下拉动页面，就触发下拉监听器的onRefresh方法
+    public void onRefresh() {
+        // 延迟若干秒后启动刷新任务
+        mHandler.postDelayed(mRefresh, 2000);
+    }
+
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    // 定义一个刷新任务
+    private Runnable mRefresh = new Runnable() {
+        @Override
+        public void run() {
+            // 结束下拉刷新布局的刷新动作
+            srl_dynamic.setRefreshing(false);
+            int position = (int) (Math.random() * 100 % mAllArray.size());
+            GoodsInfo old_item = mAllArray.get(position);
+            GoodsInfo new_item = new GoodsInfo(old_item.pic_id,
+                    old_item.title, old_item.desc);
+            mPublicArray.add(0, new_item);
+            // 通知适配器列表在第一项插入数据
+            mAdapter.notifyItemInserted(0);
+            // 让循环视图滚动到第一项所在的位置
+            rv_dynamic.scrollToPosition(0);
+            // 当循环视图的列表项已经占满整个屏幕时，再往顶部添加一条新记录，
+            // 感觉屏幕没有发生变化，也没看到插入动画。
+            // 此时就要调用scrollToPosition(0)方法，表示滚动到第一条记录。
+        }
+    };
+
+    // 一旦点击循环适配器的列表项，就触发点击监听器的onItemClick方法
+    public void onItemClick(View view, int position) {
+        String desc = String.format("您点击了第%d项，标题是%s", position + 1,
+                mPublicArray.get(position).title);
+        Toast.makeText(this, desc, Toast.LENGTH_SHORT).show();
+    }
+
+    // 一旦长按循环适配器的列表项，就触发长按监听器的onItemLongClick方法
+    public void onItemLongClick(View view, int position) {
+        GoodsInfo item = mPublicArray.get(position);
+        item.bPressed = !item.bPressed;
+        mPublicArray.set(position, item);
+        // 通知适配器列表在第几项发生变更
+        mAdapter.notifyItemChanged(position);
+    }
+
+    // 一旦点击循环适配器列表项的删除按钮，就触发删除监听器的onItemDeleteClick方法
+    public void onItemDeleteClick(View view, int position) {
+        mPublicArray.remove(position);
+        // 通知适配器列表在第几项删除数据
+        mAdapter.notifyItemRemoved(position);
+    }
+
+}
+```
+###### 学习指数：⭐⭐
+
+## 814
+#### 安卓
+###### 
