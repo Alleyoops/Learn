@@ -2294,5 +2294,197 @@ public class SwipeRecyclerActivity extends AppCompatActivity implements OnRefres
 ###### 学习指数：⭐⭐
 
 ## 814
+#### JAVA
+###### 类的调用
+* 类里的方法有带static的和不带的，带static的是类方法，不带的是成员方法。成员方法要通过这个类的一个实例对象来调用，比如一个类classa，要调用类里的成员方法就需要先声明一个实例classa a=new classa();（这里这个带括号的东西是构造方法，创建实例）。如果是本类里面的某个方法调用其他成员方法，那么一般用this.方法名。如果是类方法（静态的）那么可以不通过对象调用，也可以通过对象调用。
+* 详情参照：[Java 类与类之间的调用](https://blog.csdn.net/qq_36761831/article/details/80626138)
 #### 安卓
+###### 获取App版本信息
+* App版本号放在build.gradle中的`versionCode`和`versionName`两个参数中。注意查阅版本号的修改规则。
+```
+package com.example.test;
+
+import android.annotation.SuppressLint;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+@SuppressLint("DefaultLocale")
+public class VersionActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_version);
+        ImageView iv_icon = findViewById(R.id.iv_icon);
+        TextView tv_desc = findViewById(R.id.tv_desc);
+        iv_icon.setImageResource(R.mipmap.ic_launcher);
+        try {
+            // 先获取当前应用的包名，再根据包名获取详细的应用信息
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String desc = String.format("App名称为：%s\nApp版本号为：%d\nApp版本名称为：%s",
+                    getResources().getString(R.string.app_name), pi.versionCode, pi.versionName);
+            tv_desc.setText(desc);
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+###### 上线模式
+* 通过某个开关控制是否显示调试信息
+* 具体为建立几个`公共工具类`。代码中涉及输入调试信息的地方都改为`调用公共类的方法`，然后在公共类中定义几个`布尔变量作为开关`，在开发时打开调试，在上线时关闭调试，从而实现开发模式和上线模式的切换
+* 控制调试信息的公共类主要有3类，分别对`Log类`、`Toast类`、`AlertDialog类`进行封装：
+    * 日志Log类
+    ```
+    package com.example.test.util;
+
+    import android.util.Log;
+
+    public class LogTool {
+        public static boolean isShown = false;  // false表示上线模式，true表示开发模式
+
+        public static void v(String tag, String msg) {
+            if (isShown) {
+                Log.v(tag, msg); // 打印冗余日志
+            }
+        }
+
+        public static void d(String tag, String msg) {
+            if (isShown) {
+                Log.d(tag, msg); // 打印调试日志
+            }
+        }
+
+        public static void i(String tag, String msg) {
+            if (isShown) {
+                Log.i(tag, msg); // 打印一般日志
+            }
+        }
+
+        public static void w(String tag, String msg) {
+            if (isShown) {
+                Log.w(tag, msg); // 打印警告日志
+            }
+        }
+
+        public static void e(String tag, String msg) {
+            if (isShown) {
+                Log.e(tag, msg); // 打印错误日志
+            }
+        }
+
+        public static void wtf(String tag, String msg) {
+            if (isShown) {
+                Log.wtf(tag, msg);
+            }
+        }
+    }
+    ```
+    * 提示Toast
+    ```
+    package com.example.test.util;
+
+    import android.content.Context;
+    import android.widget.Toast;
+
+    public class ToastTool {
+        public static boolean isShown = false; // false表示上线模式，true表示开发模式
+
+        public static void showShort(Context ctx, String msg) { // 显示短提示
+            if (isShown) {
+                Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        public static void showLong(Context ctx, String msg) { // 显示长提示
+            if (isShown) {
+                Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        public static void showQuit(Context ctx) {
+            Toast.makeText(ctx, "再按一次返回键退出！", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+    ```
+    * 提醒对话框AlertDialog
+    ```
+    package com.example.test.util;
+
+    import android.annotation.SuppressLint;
+    import android.app.AlertDialog;
+    import android.content.Context;
+
+    @SuppressLint("DefaultLocale")
+    public class DialogTool {
+        public static boolean isShown = false; // false表示上线模式，true表示开发模式
+        public static int SYSTEM = 0; // 系统异常
+        public static int IO = 1; // 输入输出异常
+        public static int NETWORK = 2; // 网络异常
+        private static String[] mError = {"系统异常，请稍候再试", "读写失败，请清理内存空间后再试",
+                "网络连接失败，请检查网络设置是否开启"};
+
+        // 根据错误的类型、名称。代码、描述，弹出相应的提醒对话框
+        public static void showError(Context ctx, int type, String title, int code, String msg) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            if (isShown) {
+                String desc = String.format("%s\n异常代码：%d\n异常描述：%s", mError[type], code, msg);
+                builder.setMessage(desc);
+            } else {
+                builder.setMessage(mError[type]);
+            }
+            builder.setTitle(title).setPositiveButton("确定", null);
+            builder.create().show();
+        }
+
+        // 处理异常信息
+        public static void showError(Context ctx, int type, String title, Exception e) {
+            if (isShown) {
+                e.printStackTrace(); // 把异常的栈信息打印到日志中
+            }
+            showError(ctx, type, title, -1, e.getMessage());
+        }
+    }
+    ```
+* 除了代码外，AndroidManifestxml 还要区分开发模式与上线模式，有以下3点修改说明:
+    * (1) application标签中加上属性android:debuggable="true"表示调试模式，默认false表示上线模式。若在模拟器上调试或通过Android Studio 直接把App安装到手机上，则无论debuggable的值是多少都直接切换到调试模式。在上线发布时要把该属性设置为false。
+    * (2) App发布后，没有特殊情况，开发者都不希望activity和service对外开放。但其默认是对外部开放的，所以要在activity和service标签下分别添加属性android:exported= "false"，表示该组件不对外开放。
+    * (3) App默认安装到内部存储，因为手机与平板的存储空间有限，所以应该尽量让App选择安装到SD卡，避免占用宝贵的内部存储空间。这时要在manifest标签下加上属性android:installocation
+###### 数据加密
+* MD5
+* RSA
+* AES
+* 3DES
+* SM3
+###### 反编译
+###### 代码混淆
+* 保护代码安全
+###### 第三方加固及重签名
+* 因为代码混淆并不能完全阻止代码被破解
+###### 设备操作
+* 摄像头
+    * 表面视图SurfaceView
+    * 使用Camera拍照
+    * 纹理视图TextureView
+    * 使用Camera2拍照
+    * 运行时动态授权管理
+* 麦克风
+    * 拖动条SeekBar
+    * 音量控制
+* 传感器
+* 手机定位
+* 短距离通信
+    * NFC近场通信
+    * 红外遥控
+    * 蓝牙BlueTooth
+###### 学习指数：⭐
+
+## 815
+#### JAVA
 ###### 
