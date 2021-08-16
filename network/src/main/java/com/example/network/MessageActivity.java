@@ -63,7 +63,7 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
             mHandler.sendEmptyMessage(BEGIN);
             while (isPlaying) {
                 try {
-                    sleep(2000);
+                    sleep(2000);//睡眠时容易出InterruptedException异常
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -72,7 +72,7 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
                 message.obj = mNewsArray[(int) (Math.random() * 30 % 5)]; // 消息描述
                 mHandler.sendMessage(message); // 向处理器发送消息
             }
-            isPlaying = true;
+            //isPlaying = true;
             try {
                 sleep(2000);
             } catch (InterruptedException e) {
@@ -87,7 +87,7 @@ public class MessageActivity extends AppCompatActivity implements OnClickListene
 //                    tv_message.setText(desc);
 //                }
 //            });
-            isPlaying = false;
+            //isPlaying = false;
         }
     }
 

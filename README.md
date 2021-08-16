@@ -2486,5 +2486,379 @@ public class VersionActivity extends AppCompatActivity {
 ###### 学习指数：⭐
 
 ## 815
-#### JAVA
-###### 
+#### 安卓
+###### 消息传递Message
+* 只有主线程才能直接操作界面，分线程想修改界面得另想办法
+* `主线程向分线程`传递消息时可以直接在分线程的构造函数中传递参数，然而`分线程向主线程`传递消息并无捷径，为此Android 设计了一个 Mssge消息工具，通过`结合Handler与Message`可简单有效地实现线程之间的通信。
+```
+package com.example.network;
+
+import com.example.network.util.DateUtil;
+
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.TextView;
+
+@SuppressLint("HandlerLeak")
+public class MessageActivity extends AppCompatActivity implements OnClickListener {
+    private TextView tv_message; // 声明一个文本视图对象
+    private boolean isPlaying = false; // 是否正在播放新闻
+    private int BEGIN = 0, SCROLL = 1, END = 2; // 0为开始，1为滚动，2为结束
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_message);
+        // 从布局文件中获取名叫tv_control的文本视图
+        tv_message = findViewById(R.id.tv_message);
+        // 设置tv_message内部文字的对齐方式为靠左且靠下
+        tv_message.setGravity(Gravity.LEFT | Gravity.BOTTOM);
+        tv_message.setLines(8); // 设置tv_message高度为八行文字那么高
+        tv_message.setMaxLines(8); // 设置tv_message最多显示八行文字
+        // 设置tv_message内部文本的移动方式为滚动形式
+        tv_message.setMovementMethod(new ScrollingMovementMethod());
+        findViewById(R.id.btn_start_message).setOnClickListener(this);
+        findViewById(R.id.btn_stop_message).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_start_message) { // 点击了开始播放新闻的按钮
+            if (!isPlaying) {
+                isPlaying = true;
+                new PlayThread().start(); // 创建并启动新闻播放线程
+            }
+        } else if (v.getId() == R.id.btn_stop_message) { // 点击了结束播放新闻的按钮
+            isPlaying = false;
+        }
+    }
+
+    private String[] mNewsArray = { "北斗三号卫星发射成功，定位精度媲美GPS",
+            "美国赌城拉斯维加斯发生重大枪击事件", "日本在越南承建的跨海大桥未建完已下沉",
+            "南水北调功在当代，数亿人喝上长江水", "马克龙呼吁重建可与中国匹敌的强大欧洲"
+    };
+
+    // 定义一个新闻播放线程
+    private class PlayThread extends Thread {
+        @Override
+        public void run() {
+            // 向处理器发送播放开始的空消息
+            mHandler.sendEmptyMessage(BEGIN);
+            while (isPlaying) {
+                try {
+                    sleep(2000);//睡眠时容易出InterruptedException异常
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Message message = Message.obtain(); // 获得一个默认的消息对象
+                message.what = SCROLL; // 消息类型
+                message.obj = mNewsArray[(int) (Math.random() * 30 % 5)]; // 消息描述
+                mHandler.sendMessage(message); // 向处理器发送消息
+            }
+            //isPlaying = true;
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            mHandler.sendEmptyMessage(END); // 向处理器发送播放结束的空消息
+            // 如果只要简单处理，也可绕过Handler，直接调用runOnUiThread方法操作界面
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String desc = String.format("%s\n%s %s", tv_message.getText().toString(), DateUtil.getNowTime(), "新闻播放结束，谢谢观看");
+//                    tv_message.setText(desc);
+//                }
+//            });
+            //isPlaying = false;
+        }
+    }
+
+    // 创建一个处理器对象
+    private Handler mHandler = new Handler() {
+        // 在收到消息时触发
+        public void handleMessage(Message msg) {
+            String desc = tv_message.getText().toString();
+            if (msg.what == BEGIN) { // 开始播放
+                desc = String.format("%s\n%s %s", desc, DateUtil.getNowTime(), "开始播放新闻");
+            } else if (msg.what == SCROLL) { // 滚动播放
+                desc = String.format("%s\n%s %s", desc, DateUtil.getNowTime(), msg.obj);
+            } else if (msg.what == END) { // 结束播放
+                desc = String.format("%s\n%s %s", desc, DateUtil.getNowTime(), "新闻播放结束");
+            }
+            tv_message.setText(desc);
+        }
+    };
+
+}
+```
+* 如果只要简单处理，也可绕过Handler，直接调用runOnUiThread方法操作界面
+```
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    String desc = String.format("%s\n%s %s", tv_message.getText().toString(), DateUtil.getNowTime(), "新闻播放结束，谢谢观看");
+//                    tv_message.setText(desc);
+//                }
+//            });
+```
+###### 进度对话框
+* 分线程正在处理时，界面弹出进度对话框
+* 继承自AlertDialog，内部集成了ProgressBar
+* 还可在长条样式中增加文字说明、在圆圈进度中增加文字说明
+```
+package com.example.network;
+
+import com.example.network.util.DateUtil;
+
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.TextView;
+
+@SuppressLint(value={"HandlerLeak","SetTextI18n"})
+public class ProgressDialogActivity extends AppCompatActivity {
+    private final static String TAG = "ProgressDialogActivity";
+    private ProgressDialog mDialog; // 声明一个进度对话框对象
+    private TextView tv_result;
+    private String mStyleDesc;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_progress_dialog);
+        tv_result = findViewById(R.id.tv_result);
+        initStyleSpinner();
+    }
+
+    // 初始化对话框样式的下拉框
+    private void initStyleSpinner() {
+        ArrayAdapter<String> styleAdapter = new ArrayAdapter<String>(this,
+                R.layout.item_select, descArray);
+        Spinner sp_style = findViewById(R.id.sp_style);
+        sp_style.setPrompt("请选择对话框样式");
+        sp_style.setAdapter(styleAdapter);
+        sp_style.setOnItemSelectedListener(new StyleSelectedListener());
+        sp_style.setSelection(0);
+    }
+
+    private String[] descArray = {"圆圈进度", "水平进度条"};
+    private int[] styleArray = {ProgressDialog.STYLE_SPINNER,
+            ProgressDialog.STYLE_HORIZONTAL};
+
+    class StyleSelectedListener implements OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+            if (mDialog == null || !mDialog.isShowing()) { // 进度框未弹出
+                mStyleDesc = descArray[arg2];
+                int style = styleArray[arg2];
+                if (style == ProgressDialog.STYLE_SPINNER) { // 圆圈进度框
+                    // 弹出带有提示文字的圆圈进度对话框
+                    mDialog = ProgressDialog.show(ProgressDialogActivity.this,
+                            "请稍候", "正在努力加载页面");
+                    // 延迟1500毫秒后启动关闭对话框的任务
+                    mHandler.postDelayed(mCloseDialog, 1500);
+                } else { // 水平进度框
+                    // 创建一个进度对话框
+                    mDialog = new ProgressDialog(ProgressDialogActivity.this);
+                    mDialog.setTitle("请稍候"); // 设置进度对话框的标题文本
+                    mDialog.setMessage("正在努力加载页面"); // 设置进度对话框的内容文本
+                    mDialog.setMax(100); // 设置进度对话框的最大进度
+                    mDialog.setProgressStyle(style); // 设置进度对话框的样式
+                    mDialog.show(); // 显示进度对话框
+                    new RefreshThread().start(); // 启动进度刷新线程
+                }
+            }
+        }
+
+        public void onNothingSelected(AdapterView<?> arg0) {}
+    }
+
+    // 定义一个关闭对话框的任务
+    private Runnable mCloseDialog = new Runnable() {
+        @Override
+        public void run() {
+            if (mDialog.isShowing()) { // 对话框仍在显示
+                mDialog.dismiss(); // 关闭对话框
+                tv_result.setText(DateUtil.getNowTime() + " " + mStyleDesc + "加载完成");
+            }
+        }
+    };
+
+    // 定义一个进度刷新线程
+    private class RefreshThread extends Thread {
+        @Override
+        public void run() {
+            for (int i = 0; i < 10; i++) {
+                Message message = Message.obtain(); // 获得一个默认的消息对象
+                message.what = 0; // 消息类型
+                message.arg1 = i * 10;  // 消息数值
+                mHandler.sendMessage(message); // 往处理器发送消息对象
+                try {
+                    sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            mHandler.sendEmptyMessage(1); // 往处理器发送类型为1的空消息
+        }
+    }
+
+    // 创建一个处理器对象
+    private Handler mHandler = new Handler() {
+        // 在收到消息时触发
+        public void handleMessage(Message msg) {
+            if (msg.what == 0) { // 该类型表示刷新进度
+                mDialog.setProgress(msg.arg1); // 设置进度对话框上的当前进度
+            } else if (msg.what == 1) { // 该类型表示关闭对话框
+                post(mCloseDialog); // 立即启动关闭对话框的任务
+            }
+        }
+    };
+
+}
+```
+###### 异步任务AsyncTask
+* 因为Thread+Handler方式代码繁琐（且需要处理代码和页面代码混在一起，而AsyncTask将处理代码分开来写成一个Task类供页面代码使用），所以推出了AsyncTask这个`轻量级异步任务工具`
+* 内部`已经封装好Thread+Handler`的线程通信机制，故开发者只需按部就班地编写业务代码即可，不必关心线程通信的复杂流程
+* 通常用于`网络访问操作`，包括HTTP接口调用、文件下载与上传等:
+* AsyncTask是一个`模板类`（AsyncTask\<Params，Progress，Result>），需要指定模板的参数类型，即先自定义一个继承自AsyncTask的类，然后在页面代码中使用该类:
+```
+public class ProgressAsyncTask extends AsyncTask<String, Integer, String>
+```
+* AsyncTask在简单场合足够使用，但由于它默认的线程池模式是SERIAL_EXECUTOR，即按照顺序先后一次调用，故大量并发处理时需要十分小心
+###### 异步服务
+* 服务Service虽然是在后台运行，但跟Activity一样都在主线程中，如果后台运行着的服务挂起，用户界面就会卡着不动，俗称死机。后台服务经常要做些耗时操作，比如`批量处理`、`文件导入`、`网络访问`等，此时不应该影响用户在界面上的操作，而应该开启分线程执行耗时操作可以通过`Thread+Handler`机制实现异步处理，也可以通过Android封装好的`异步服务IntentService`处理。
+###### 网络连接检查
+* 配置AndroidManifest.xml的网络权限：
+```
+    <!-- 互联网 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 查看网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+```
+* 添加网络权限配置后，可利用连接管理器ConnectivityManager检查网络连接
+```
+package com.example.network;
+
+import com.example.network.util.Utils;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
+import android.widget.TextView;
+
+@SuppressLint("DefaultLocale")
+public class ConnectActivity extends AppCompatActivity {
+    private TextView tv_connect;
+    private Handler mHandler = new Handler(); // 声明一个处理器对象
+    private String[] mNetStateArray = {"正在连接", "已连接", "暂停", "正在断开", "已断开", "未知"};
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_connect);
+        tv_connect = findViewById(R.id.tv_connect);
+        // 延迟50毫秒后启动刷新任务
+        mHandler.postDelayed(mRefresh, 50);
+    }
+
+    // 定义一个网络连接状态的刷新任务
+    private Runnable mRefresh = new Runnable() {
+        @Override
+        public void run() {
+            getAvailableNet();
+            // 延迟1秒后再次启动刷新任务
+            mHandler.postDelayed(this, 1000);
+        }
+    };
+
+    // 获得可用的网络连接
+    private void getAvailableNet() {
+        String desc;
+        // 从系统服务中获取电话管理器
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        // 从系统服务中获取连接管理器
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        // 从连接管理器中获取可用的网络信息对象
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info != null) {
+            if (info.getState() == NetworkInfo.State.CONNECTED) { // 网络已连上
+                desc = String.format("当前网络连接的状态是%s", mNetStateArray[info.getState().ordinal()]);
+                if (info.getType() == ConnectivityManager.TYPE_WIFI) { // WIFI网络
+                    desc = String.format("%s\n当前联网的网络类型是WIFI", desc);
+                } else if (info.getType() == ConnectivityManager.TYPE_MOBILE) { // 4G等移动网络
+                    int mobile_type = info.getSubtype(); // 获取网络子类型
+                    desc = String.format("%s\n当前联网的网络类型是%s %s", desc,
+                            Utils.getNetworkTypeName(tm, mobile_type),
+                            Utils.getClassName(tm, mobile_type));
+                } else {
+                    desc = String.format("%s\n当前联网的网络类型是%d", desc, info.getType());
+                }
+            } else { // 网络未连上
+                desc = "\n当前无上网连接";
+            }
+        } else {
+            desc = "\n当前无上网连接";
+        }
+        tv_connect.setText(desc);
+    }
+
+}
+```
+###### 学习指数：⭐
+<br><br><br><br>
+
+
+
+
+------------------------------
+## `待学`
+#### Navigation：[Android架构组件-Navigation的使用](https://www.jianshu.com/p/729375b932fe)
+#### 网页集成（网页视图WebView、简单浏览器）
+#### CardView卡片式布局
+#### 抽屉布局DrawerLayout
+#### ViewFlipper飞掠试图
+
+
+
+-------------------------------
+## `随用随学`
+##### 手势冲突处理（滚动、滑动、响应）
+##### OKhttp3（重点！！！）
+##### Retrofit+OKhttp+RXjava
+##### 第三方SDK（关于聊天功能：第三方即时通讯sdk，比如融云sdk等）
+##### 关于Module：[Android中module怎么用？](https://blog.csdn.net/u010356768/article/details/105427110?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-6.base&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-6.base)（module可以作为库使用）
+##### 设备操作
+
+
+
+-------------------------------
+## `未学`
+###### 下载管理器DownloadManager
+###### 文件对话框
+###### 文件上传
+###### 套接字编程Socket
+###### 自定义控件（视图、动画、对话框、通知栏）
+###### 动画/多媒体/事件/性能优化
+###### 数据加密（安全加固）
