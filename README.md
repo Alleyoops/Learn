@@ -2836,7 +2836,7 @@ public class ConnectActivity extends AppCompatActivity {
 ## `待学`
 #### Navigation：[Android架构组件-Navigation的使用](https://www.jianshu.com/p/729375b932fe)
 #### 网页集成（网页视图WebView、简单浏览器）
-#### CardView卡片式布局
+#### CardView卡片式布局 （905更，已掌握，内部采用FrameLayout布局）
 #### 抽屉布局DrawerLayout
 #### ViewFlipper飞掠试图
 
