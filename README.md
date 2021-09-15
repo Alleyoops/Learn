@@ -1733,7 +1733,7 @@ public class RecyclerLinearAdapter extends RecyclerView.Adapter<ViewHolder> impl
     }
 ```
 ###### 材质设计库MaterialDesign
-* MateriaIDesign材质设计库是Android在界面设计方面做出重大提升的`增强库`，该库提供了`协调布局CoordinatorLayout`、 `应用栏布局AppBarLayout`、 `可折叠工具栏布局CollapsingToolbarLayout`等等新颖控件
+* MateriaIDesign材质设计库是Android在界面设计方面做出重大提升的`增强库`，该库提供了`协调布局CoordinatorLayout`、 `应用栏布局cardLayout`、 `可折叠工具栏布局CollapsingToolbarLayout`等等新颖控件
 * 使用design库前要先在build.gradle的dependencies节点下导入design库
     * 协调布局CoordinatorLayout
         * `协调布局CoordinatorLayout是MateriaIDesign材质设计库的基础`，几乎所有的design控件都依赖于该布局。所谓协调布局，指的是`内部控件互相之间存在着动作关联`，比如`在A视图的位置发生变化之时，B视图的位置也按照某种规则来变化`。

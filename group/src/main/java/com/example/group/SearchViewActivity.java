@@ -47,6 +47,7 @@ public class SearchViewActivity extends AppCompatActivity {
     }
 
     // 根据菜单项初始化搜索框
+    @SuppressLint("RestrictedApi")
     private void initSearchView(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.menu_search);
         // 从菜单项中获取搜索框对象
