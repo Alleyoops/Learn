@@ -4,14 +4,17 @@ import com.example.event.util.DateUtil;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by ouyangshen on 2017/11/23.
  */
 public class GestureDetectorActivity extends AppCompatActivity {
+    private static final String TAG = "GestureDetectorActivity";
     private TextView tv_gesture;
     private GestureDetector mGesture; // 声明一个手势检测器对象
     private String desc = "";
@@ -69,6 +72,7 @@ public class GestureDetectorActivity extends AppCompatActivity {
 
         // 在手势滑动过程中触发
         public final boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.d(TAG, "onScroll~");
             return false;
         }
 
