@@ -197,8 +197,22 @@ SomeFragment someFragment = (SomeFragment)f.instantiateItem(pager,position);
 
 ## 4、接口
 ![20211001143130](https://raw.githubusercontent.com/Alleyoops/Image/main/20211001143130.png)
-![20211001150715](https://raw.githubusercontent.com/Alleyoops/Image/main/20211001150715.png)
+![20211001150715](https://raw.githubusercontent.com/Alleyoops/Image/main/20211001150715.png)<br>
+关于default关键字：
+```
+public interface myInterface {
 
+    /*
+     * default关键字修饰的方法就是初始化的抽象方法。或者说是一个已经实现了的抽象方法，不需要再在其他implement接口位置进行重写实现。
+     *
+     */
+    //实现dataBinding的onclick方法
+    default void test(View view){
+        Toast.makeText(view.getContext(), "HI", Toast.LENGTH_SHORT).show();
+    }
+    void test2();//这种没关键字的是需要继承并实现的
+}
+```
 ## 5、集合
 set、list、map接口<br>
 遍历集合：
