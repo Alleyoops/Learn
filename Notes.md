@@ -234,7 +234,7 @@ enum，类的对象数量有限且固定，每个枚举类都是单例模式
 <br>
 普通流效率低下的最大原因就在于此，频繁的调用磁盘，导致无法发挥内存速度快的优点。于是为了提高效率，缓冲流出现了。看看缓冲流缓冲了什么？缓冲流并不是每一个字节都要调用一次磁盘，而是根据设置的缓冲区大小，每当缓冲区满了以后，再调用一次磁盘，比如上图中，缓冲区设置为3，结果就是每次缓冲区有3个字节的数据以后，再调用一次磁盘，这样一来，调用磁盘的次数就减少了很多，使效率得到了很大的提升。文件越大，缓冲流效率的提升越明显。
 
-## 9、反射REflection
+## 9、反射Reflection
 前提：JVM已经加载这个类，相当于人脑有了这个类的记忆
 
 ## 10、动态代理
@@ -268,16 +268,11 @@ enum，类的对象数量有限且固定，每个枚举类都是单例模式
 ## BottomNavigationView的基本使用
 https://blog.csdn.net/qq_32534441/article/details/105227916
 
-## [Android Jetpack](https://www.zhihu.com/column/Jetpacker)
-
-
-## 参考 ：navigation每次点击都刷新fragment
-![20210904231717](https://raw.githubusercontent.com/Alleyoops/Image/main/20210904231717.png)
 
 ## Tooltips
 Tooltips可以实现类似pc端网页鼠标悬停时出现描述信息的功能，而到安卓中，如果给一个控件使用了Tooltips，那么当用户长按这个控件时，我们预设的描述信息就会悬浮出现在控件附件某个位置
 
-## Data Binding
+## DataBinding
 基础1：https://examplecode.cn/2018/07/20/android-databinding-01-introduction/<br>
 基础2：https://blog.csdn.net/lixiong0713/article/details/109051409<br>
 点击事件：https://www.jianshu.com/p/212e85f7a435
@@ -285,6 +280,11 @@ Tooltips可以实现类似pc端网页鼠标悬停时出现描述信息的功能�
 ## OKHttp（retrofit）踩坑：responseBody.string()只能调用一次
 https://www.cnblogs.com/suizhikuo/p/12925455.html<br>
 说到这，顺便提一嘴，InputStream也是只能读一次，InputStream可以看做是一个数据通道，并不负责数据的存储和处理。类似这样的机制应该还有很多。
+
+## 踩坑：通过 View.isClickable 去控制 View 的重复点击，即使控制了，仍然能够再次触发点击事件->只要点击button都会将setClickable设置为true，所以在setOnClickListener之前setClickable设置为false只不过是多此一举！<br>
+https://blog.csdn.net/u011630575/article/details/50113927<br>
+https://blog.csdn.net/lv_fq/article/details/82314241<br>
+解决办法：https://www.jianshu.com/p/8385d091feca
 
 ## SharedPreferences
 * SharedPreference 相关修改使用 apply 方法进行提交会先写入内存，然后异步写入磁盘，commit
@@ -298,7 +298,28 @@ https://www.cnblogs.com/suizhikuo/p/12925455.html<br>
 ## PictureSelecter
 https://www.jianshu.com/p/3fe1cc959dfa
 
-## [ViewPager + Fragment重复销毁加载视图的解决办法](https://blog.csdn.net/qq994467433/article/details/83448663?utm_medium=distribute.wap_relevant.none-task-blog-2~default~baidujs_title~default-12.wap_blog_relevant_default&spm=1001.2101.3001.4242.7)
+
+## 参考 ：navigation每次点击都刷新fragment
+![20210904231717](https://raw.githubusercontent.com/Alleyoops/Image/main/20210904231717.png)
+
+## BottomSheet
+https://www.jianshu.com/p/c9e24765067e<br>
+![20211215175335](https://raw.githubusercontent.com/Alleyoops/Image/main/20211215175335.png)
+
+## [ViewPager + Fragment重复销毁加载视图的解决办法]
+* (https://blog.csdn.net/qq994467433/article/details/83448663?utm_medium=distribute.wap_relevant.none-task-blog-2~default~baidujs_title~default-12.wap_blog_relevant_default&spm=1001.2101.3001.4242.7)
+* https://www.jianshu.com/p/7a47907f49c2通过ViewPager的setOffscreenPageLimit(int limit)可以设置预加载页面数量，就不会重加载了
+
+## [Android SearchView设置与用法的那点事儿(焦点问题)](https://www.cnblogs.com/molashaonian/p/9097669.html)
+
+## 线程和协程（以及并行和并发）：https://zhuanlan.zhihu.com/p/169426477
+
 ## 绘制贝塞尔曲线
 
+## 四大组件之一：广播Broadcast，例如：[安卓任意两个或多个Fragment之间的交互与刷新界面](https://www.cnblogs.com/jiangbeixiaoqiao/p/6214557.html)
+
 ## 关于EventBus的使用，还有通知、数据传送的机制、使用方式等
+
+## [Android Jetpack](https://www.zhihu.com/column/Jetpacker)
+
+![1642525737(1)](https://raw.githubusercontent.com/Alleyoops/Image/main/1642525737(1).png)
